@@ -54,15 +54,10 @@ mission "Deep: Syndicate Convoy"
 			choice
 				`	"Sure, I can do that."`
 				`	"Sorry, but I will not be traveling in that direction any time soon."`
-					defer
+					decline
 			
-			branch warship
-				"ships: heavy warship" > 2
-			
-			`	"Good. If I were you, I'd try to avoid the Tania Australis, Merak, and Altair systems. If you do go through those systems, be ready for a fight. Make sure you get the freighters back on time."`
-			
-			label warship
-			`	The Deep Security officer wishes you good luck and walks off, leaving you to ponder your route, and why those systems were mentioned.`
+			`	"Good. Before you leave, know that there may be pirate forces waiting for you in Tania Australis, Merak, and Altair. You can try to avoid them, but make sure you get the freighters back on time."`
+			`	The Deep Security officer wishes you good luck and walks off, leaving you wonder how he knows where pirate fleets might be waiting for you.`
 				accept
 	
 	npc accompany save
@@ -127,7 +122,7 @@ mission "Deep: Tarazed Convoy"
 			choice
 				`	"Sure, I can do that."`
 				`	"Sorry, but I will not be traveling in that direction any time soon."`
-					defer
+					decline
 			
 			`	"Thank you, Captain. Before you go, I need to inform you that you may encounter pirate fleets near Tania Australis, Muphrid, and Ascella, and you might not have time to go around them."`
 			`	The Deep Security officer wishes you good luck and walks off, leaving you wonder how she knows where pirate fleets might be waiting for you.`
@@ -195,9 +190,9 @@ mission "Deep: Kraz Convoy"
 			choice
 				`	"Sure, I can do that."`
 				`	"Sorry, but I will not be traveling in that direction any time soon."`
-					defer
+					decline
 			
-			`	"Much appreciated, Captain. We expect there will be pirates waiting in Algieba, Cor Caroli, and Wei, but Behemoths are tough ships so you shouldn't need to slow yourself down by taking an alternative route."`
+			`	"Much appreciated, Captain. And for your well being as well as that of the cargo's, you must know that there may be pirates waiting in Algieba, Cor Caroli, and Wei. Behemoths are tough ships so you should be able to travel through those systems and not slow yourself down by taking alternative routes."`
 			`	The Deep Security officer wishes you good luck and walks off, leaving you wonder how she knows where pirate fleets might be waiting for you.`
 				accept
 	
@@ -213,25 +208,25 @@ mission "Deep: Kraz Convoy"
 		system Algieba
 		government Pirate
 		fleet "Large Northern Pirates"
-		fleet "Large Northern Pirates"
+		fleet "Small Northern Pirates"
 	npc
 		personality nemesis staying
 		system "Cor Caroli"
 		government Pirate
 		fleet "Large Northern Pirates"
-		fleet "Large Northern Pirates"
+		fleet "Small Northern Pirates"
 	npc
 		personality nemesis staying
 		system Wei
 		government Pirate
-		fleet "Small Northern Pirates"
+		fleet "Large Northern Pirates"
 		fleet "Small Northern Pirates"
 	npc
 		system destination
 		personality nemesis staying
 		government Pirate
 		fleet "Large Northern Pirates"
-		fleet "Large Northern Pirates"
+		fleet "Small Northern Pirates"
 	
 	on stopover
 		dialog `When you arrive, Kraz Cybernetics already has the cargo waiting by the spaceport. After a few hours of loading the massive freighters, the spaceport crew gives you the 'all clear' signal, and the Behemoth captains get ready to depart.`
@@ -367,7 +362,7 @@ mission "Deep: Remnant 0"
 				has "First Contact: Remnant: offered"
 			choice
 				`	"I would be glad to help."`
-				`	"Sorry, but Hai space is too far for me right now."`
+				`	"Sorry, but Hai space is too far for me."`
 					decline
 					
 			`	"Thank you again, Captain!" he says very enthusiastically. "I'd have traveled myself, but I must confess we are low on funds and will not receive more unless we make some sort of discovery. We will be able to pay for half the cost of the stones once you return."`
@@ -387,7 +382,7 @@ mission "Deep: Remnant 0"
 				goto end
 			
 			label friendly
-			`	You tell Ivan about how the region of space beyond the wormhole is known as the "Ember Waste"; that it is inhabited by a group of friendly humans who fled there during the Alpha Wars and have advanced independently for centuries. You mention their strange culture, sharing what you can remember about the songs the Remnant people sang.`
+			`	You tell Ivan about how the region of space beyond the wormhole is known as the "Ember Waste" and that it is inhabited by a group of friendly humans who fled there during the Alpha Wars. These humans have advanced independently from the rest of humanity for centuries. You mention their strange culture, sharing what you can remember about the songs the Remnant people sang.`
 			
 			label end
 			`	"This is very interesting, and would turn out to be an amazing discovery if true. Please, bring us the Quantum Keystones so that we might try to understand the properties which allow entry into the wormhole's threshold. Later we will learn more about these inhabitants you describe."`
@@ -434,7 +429,7 @@ mission "Deep: Remnant 1A"
 		not "knew of stones before scientists"
 	on offer
 		conversation
-			`You contact Ivan after you land and he sends you directions to his research lab on the outskirts of the nearby city. When you arrive you are greeted by Ivan, Maria, and a number of other scientists on the team, and Ivan eagerly informs you on what their research has revealed.`
+			`You contact Ivan after you land and he sends you directions to his research lab on the outskirts of the spaceport city. When you arrive you are greeted by Ivan, Maria, and a number of other scientists on the team, and Ivan eagerly informs you on what their research has revealed.`
 			`	"We've analyzed the Quantum Keystones, and surprisingly they do allow entry into the wormhole in Terminus. It would appear that the stones stabilize the wormhole as the ship passes through it, or maybe it is stabilizing the ship in some way and not the wormhole. We'll need much more time to fully understand the true mechanism that is at play here. Whatever the case is, one stone is required for each ship to pass through the wormhole."`
 			`	"We sent a single drone through the wormhole to test that it was passable, and programmed it to return immediately in case the region beyond is hostile or dangerous. Would you be willing to explore the region for us? You may want to install a ramscoop, as we are unsure if there will be anywhere for your ship to refuel."`
 			choice
