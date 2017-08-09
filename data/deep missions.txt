@@ -317,7 +317,7 @@ mission "Deep: TMBR 0"
 			
 			label met
 			`	"You know 'There Might Be Riots?' You are so lucky!" says Maria.`
-			`	"I couldn't even see them during the 'Trouble on the Tarmac' tour, but you've met them?! That's insane!" shrieked Laura. "That album had some of my favorite songs."`
+			`	"I couldn't even see them during the 'Trouble on the Tarmac' tour, but you've met them?! That's insane!" shrieks Laura. "That album had some of my favorite songs."`
 			`	Hannah chimes in, "I've been wondering: Do you know where the band is? They've been quiet for a while now, ever since that broadcast. I heard rumors that the Republic detained them for trespassing, but since you're here..."`
 			choice
 				`	"I know where they are, and rest assured that they're safe."`
@@ -868,7 +868,7 @@ mission "Deep: Remnant: Inhibitor Cannon"
 		outfit "Inhibitor Cannon" -1
 
 
-# I wonder if we should set up a branch here, where the player is given the choice to tell the Remnant about the Deep (and thus the Remnant chooses where to place the cubes).
+
 mission "Deep: Remnant Surveillance"
 	landing
 	name `Remnant Surveillance`
@@ -895,7 +895,6 @@ mission "Deep: Remnant Surveillance"
 					decline
 			
 			`	"Thank you, Captain. Return here once you have finished, and I'll ensure you are well compensated for the journey."`
-			`	As you collect the featureless cubes from Ivan, you can't help but notice that they are surprisingly heavy as well.`
 				accept
 	
 	on decline
