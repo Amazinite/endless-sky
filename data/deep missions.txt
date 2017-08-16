@@ -344,7 +344,7 @@ mission "Deep: Mystery Cubes 0"
 				`	"Is there anything else that you need me to do?"`
 					goto next
 				`	"What is it that those cubes are for?"`
-					goto cube_answer
+					goto cubes
 			
 			label interested
 			choice
@@ -352,7 +352,7 @@ mission "Deep: Mystery Cubes 0"
 					goto next
 				`	"Are you able to tell me what the cubes are for now?"`
 			
-			label cube_answer
+			label cubes
 			apply
 				set "deep: interested in cubes"
 			`	Paris takes a moment to pause before responding. "They're sensor devices. They are used to track the movement of pirate fleets, but they are almost useless alone; dozens could be needed in a single system to track entire fleets. The ones that I gave you were fine-tuned though, designed to only detect the ship that we know that Beelzebub is using. That is all that I am allowed to tell you, at least for the time being."`
