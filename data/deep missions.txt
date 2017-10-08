@@ -594,6 +594,7 @@ mission "Deep: Mystery Cubes 4"
 	on enter Hassaleh
 		set "deep: passed through north"
 	on complete
+		event "assisted the deep" 3 7
 		payment 1000000
 		conversation
 			`As you come in for a landing, you can see that a number of buildings have taken fire from the pirate fleet above. White tents have been set up to tend to the wounded and multiple ships are being repaired. You are directed to an unscathed building in which a number of Navy officers, the admiral you met on Luna, Lieutenant Paris, and your fellow merchant captains have convened. After you enter the room and get settled down, the admiral begins to speak.`
@@ -608,6 +609,8 @@ mission "Deep: Mystery Cubes 4"
 			`	"Luckily, all six stolen Cruisers are accounted for, albeit destroyed. Deep Security forces have begun to collect the stolen sensor cubes. We can confirm that Beelzebub was watching our every move, since the cubes are being found all over the Paradise Worlds and Core. They should all be retrieved within the next week." The admiral then turns to the merchant captains. "Now that Beelzebub doesn't have the upper hand anymore, you are no longer needed. As promised, <payment> will be transfered to each of your accounts for your services."`
 			`	"Thank you, Admiral," one of the captains replies.`
 			`	"No, thank you. All of you. You didn't have to accept this risk but you did, and I speak for the whole Navy when I say that we are grateful for that."`
+
+event "assisted the deep"
 
 
 
@@ -897,8 +900,7 @@ mission "Deep: Singularity 0B"
 		attributes deep
 		attributes urban
 	to offer
-		random < 40
-		has "Deep: Mystery Cubes 4: done"
+		has "event: assisted the deep"
 		has "Deep: Singularity 0A: offered"
 		not "deep: helped before archaeology"
 	
