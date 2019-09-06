@@ -125,7 +125,7 @@ protected:
 	// default turnrate.
 	void SetTurretTurn(double rate);
 	
-	std::pair<const Outfit*,int> *ammoPair = nullptr;
+	std::pair<const Outfit*,int> ammoPair;
 	
 	
 private:
