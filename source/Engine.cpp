@@ -2030,11 +2030,14 @@ void Engine::AddSprites(const Ship &ship)
 		{
 			Point pos = ship.Facing().Rotate(point) * ship.Zoom() + ship.Position();
 			for(const auto &it : ship.Attributes().SteeringFlareSprites())
-				for(int i = 0; i < it.second && i < 3; ++i)
-				{
-					Body sprite(it.first, pos, ship.Velocity(), ship.Facing() + point.Angle(), point.Zoom());
-					draw[calcTickTock].Add(sprite, cloak);
-				}
+				if((point.facing == Ship::EnginePoint::LEFT && !ship.SteeringDirection()) 
+					|| (point.facing == Ship::EnginePoint::RIGHT && ship.SteeringDirection()) 
+					|| point.facing == Ship::EnginePoint::NONE)
+					for(int i = 0; i < it.second && i < 3; ++i)
+					{
+						Body sprite(it.first, pos, ship.Velocity(), ship.Facing() + point.Angle(), point.Zoom());
+						draw[calcTickTock].Add(sprite, cloak);
+					}
 		}
 	
 	if(drawCloaked)

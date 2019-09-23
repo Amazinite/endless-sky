@@ -86,6 +86,11 @@ public:
 		double Zoom() const { return zoom; }
 		double Angle() const { return angle; }
 		
+		uint8_t facing = 0;
+		static const uint8_t NONE = 0;
+		static const uint8_t LEFT = 1;
+		static const uint8_t RIGHT = 2;
+		
 	private:
 		double zoom;
 		double angle;
@@ -229,6 +234,9 @@ public:
 	bool IsThrusting() const;
 	bool IsReversing() const;
 	bool IsSteering() const;
+	// The direction that the ship is steering. If true, the ship is steering right. 
+	// If false, the ship is steering left.
+	bool SteeringDirection() const;
 	// Get the points from which engine flares should be drawn.
 	const std::vector<EnginePoint> &EnginePoints() const;
 	const std::vector<EnginePoint> &ReverseEnginePoints() const;
@@ -433,6 +441,7 @@ private:
 	bool isThrusting = false;
 	bool isReversing = false;
 	bool isSteering = false;
+	bool steeringDirection = false;
 	bool neverDisabled = false;
 	bool isCapturable = true;
 	bool isInvisible = false;

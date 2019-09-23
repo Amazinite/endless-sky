@@ -50,6 +50,8 @@ namespace {
 	const vector<string> BAY_FACING = {"forward", "left", "right", "back"};
 	const vector<Angle> BAY_ANGLE = {Angle(0.), Angle(-90.), Angle(90.), Angle(180.)};
 	
+	const vector<string> STEERING_FACING = {"none", "left", "right"};
+	
 	const double MAXIMUM_TEMPERATURE = 100.;
 	
 	const double SCAN_TIME = 60.;
@@ -197,7 +199,7 @@ void Ship::Load(const DataNode &node)
 			steeringEnginePoints.emplace_back(.5 * child.Value(1), .5 * child.Value(2),
 				(child.Size() > 4 ? child.Value(4) : 1.), (child.Size() > 3 ? child.Value(3) : 0));
 			EnginePoint &engine = steeringEnginePoints.back();
-			for(int i = 3; i < child.Size(); ++i)
+			for(int i = 5; i < child.Size(); ++i)
 			{
 				for(unsigned j = 1; j < ENGINE_SIDE.size(); ++j)
 					if(child.Token(i) == ENGINE_SIDE[j])
@@ -672,7 +674,14 @@ void Ship::Save(DataWriter &out) const
 		for(const EnginePoint &point : reverseEnginePoints)
 			out.Write("reverse engine", 2. * point.X(), 2. * point.Y(), point.Zoom());
 		for(const EnginePoint &point : steeringEnginePoints)
-			out.Write("steering engine", 2. * point.X(), 2. * point.Y(), point.Zoom(), point.Angle());
+		{
+			double x = 2. * point.X();
+			double y = 2. * point.Y();
+			double angle = point.Angle();
+			double zoom = point.Zoom();
+			if(point.facing)
+				out.Write("steering engine", x, y, angle, zoom, STEERING_FACING[point.facing]);
+			else
 		for(const Hardpoint &hardpoint : armament.Get())
 		{
 			const char *type = (hardpoint.IsTurret() ? "turret" : "gun");
