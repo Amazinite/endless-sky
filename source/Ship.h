@@ -82,11 +82,13 @@ public:
 	
 	class EnginePoint : public Point {
 	public:
-		EnginePoint(double x, double y, double zoom) : Point(x, y), zoom(zoom) {}
+		EnginePoint(double x, double y, double zoom, double angle) : Point(x, y), zoom(zoom), angle(angle) {}
 		double Zoom() const { return zoom; }
+		double Angle() const { return angle; }
 		
 	private:
 		double zoom;
+		double angle;
 	};
 	
 	
@@ -226,9 +228,11 @@ public:
 	// Check if the ship is thrusting. If so, the engine sound should be played.
 	bool IsThrusting() const;
 	bool IsReversing() const;
+	bool IsSteering() const;
 	// Get the points from which engine flares should be drawn.
 	const std::vector<EnginePoint> &EnginePoints() const;
 	const std::vector<EnginePoint> &ReverseEnginePoints() const;
+	const std::vector<EnginePoint> &SteeringEnginePoints() const;
 	
 	// Make a ship disabled or destroyed, or bring back a destroyed ship.
 	void Disable();
@@ -428,6 +432,7 @@ private:
 	bool hasBoarded = false;
 	bool isThrusting = false;
 	bool isReversing = false;
+	bool isSteering = false;
 	bool neverDisabled = false;
 	bool isCapturable = true;
 	bool isInvisible = false;
@@ -461,6 +466,7 @@ private:
 	
 	std::vector<EnginePoint> enginePoints;
 	std::vector<EnginePoint> reverseEnginePoints;
+	std::vector<EnginePoint> steeringEnginePoints;
 	Armament armament;
 	// While loading, keep track of which outfits already have been equipped.
 	// (That is, they were specified as linked to a given gun or turret point.)
