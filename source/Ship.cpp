@@ -680,7 +680,6 @@ void Ship::Save(DataWriter &out) const
 				out.Write("steering engine", x, y, angle, zoom, STEERING_FACING[point.facing]);
 			else
 				out.Write("steering engine", x, y, angle, zoom);
-				
 		}
 		for(const Hardpoint &hardpoint : armament.Get())
 		{
