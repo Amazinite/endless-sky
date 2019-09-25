@@ -24036,6 +24036,9 @@ planet "Alta Hai"
 	spaceport `If this section of the ring is any indication, there must be trillions of Quarg here. Since the construction work on the ring has long since ended, many of them seem to spend their time with creative or scientific endeavors instead. The spaceport is decorated with artwork of every imaginable kind: sculptures, mobiles, paintings, music, and even one hallway that cycles through various artificial odors, some of them intensely unpleasant to your human senses.`
 	bribe 0
 	security 0.9
+	tribute 100000
+		threshold 1000000000
+		fleet "Large Quarg" 100
 
 planet Amazon
 	attributes core tourism oil frontier
@@ -24714,6 +24717,9 @@ planet Echo
 	government Quarg
 	bribe 0
 	security 0.9
+	tribute 10000
+		threshold 20000
+		fleet "Large Quarg" 10
 
 planet "Elek Kartanu"
 	attributes korath
@@ -24931,6 +24937,9 @@ planet Forpelog
 	spaceport `Your ship is docked on a metal pad immediately outside the dome of the city, which towers over you. Immediately after you landed, a smaller canopy unfolded around your ship, sealing it in and providing enough air for you to breathe as you make your way inside. The stark, lifeless badlands outside give way to bustling streets and lush blue foliage within. No other human beings are in sight.`
 	bribe 0
 	security 0.9
+	tribute 10000
+		threshold 20000
+		fleet "Large Quarg" 10
 
 planet Foundry
 	attributes core factory urban
@@ -25106,6 +25115,9 @@ planet Grakhord
 	spaceport `Here, you feel like a young child lost among a crowd of tall, indifferent adults. The average adult Quarg is over three meters tall, and although they move slowly and gracefully, on their long legs they easily speed by you. Worse, the counters for the merchant exchange, bank, and job board are high enough that you can barely see over them. But, the Quarg have helpfully provided stepping stools stashed under the counters so that shorter humans can carry out business without having to constantly crane their necks upwards.`
 	bribe 0
 	security 0.9
+	tribute 10000
+		threshold 20000
+		fleet "Large Quarg" 10
 
 planet Greenbloom
 	attributes hai "hai tourism" "human tourism"
@@ -25405,6 +25417,9 @@ planet "Karek Fornati"
 	description `Karek Fornati was once a farming world, before global temperatures began to rise and the overworked farmland slowly deteriorated into deserts. The Korath who remain have dedicated their lives to finding a way to keep the "sand seas" from swallowing up the last of the fertile land, but without much success, and there are regions near the equator where sandstorms rage continually and no living things can survive.`
 	spaceport `The spaceport city is built around an enormous public square, with stalls around its periphery for produce or grain or cattle to be sold and shipped offworld. But only one corner of the square is still active as a market; the rest has fallen into disrepair.`
 	spaceport `	Outside the city, the land is divided up by perfectly straight strips of pine trees laid out perpendicular to the prevailing wind direction. Many of the fields are growing what looks like hay, or clover, or black, nearly leafless shrubs; only a few of the fields are actively being harvested.`
+	tribute 100
+		threshold 60000
+		fleet "Large Quarg" 3
 
 planet "Kasichara Fet"
 	attributes korath
@@ -25446,6 +25461,9 @@ planet "Korati Efreti"
 	government "Kor Efret"
 	bribe 0.1
 	security 0.5
+	tribute 100
+		threshold 60000
+		fleet "Large Quarg" 3
 
 planet "Korbatri Eska"
 	attributes korath
@@ -25489,6 +25507,9 @@ planet "Kuwaru Efreti"
 	spaceport `	Although the spaceport offers all the usual amenities, including a small merchant's exchange for trading goods, you feel slightly self-conscious about breaking the silence of the station to speak to anyone.`
 	bribe 0
 	security 1
+	tribute 25000
+		threshold 160000
+		fleet "Large Quarg" 25
 
 planet Lagrange
 	attributes quarg tourism station
@@ -25497,6 +25518,9 @@ planet Lagrange
 	spaceport `In the docking section are flexible, oddly organic-looking tubes that snaked out to connect to your ship as it approached. Walking through the tube and into the station was a somewhat disconcerting experience. Inside, crowds of human tourists gawk at the tall, thin Quarg, who for the most part seem unfazed by the attention. The station is perfectly clean; every surface shines.`
 	bribe 0
 	security 0.9
+	tribute 10000
+		threshold 20000
+		fleet "Large Quarg" 10
 
 planet "Laki Nemparu"
 	attributes korath efret
@@ -25504,6 +25528,9 @@ planet "Laki Nemparu"
 	description `This is an old factory world, so shrouded in smog that only tiny glimpses of the land are visible from above. Deep under the oceans of Laki Nemparu are oil reservoirs so vast that centuries of industry have not yet drained them dry. All but the hardiest of the native vegetation and wildlife is now long extinct from lack of direct sunlight or from pollution and chemical exposure.`
 	spaceport `All the Korath you encounter in the spaceport are wearing ventilator masks, and if you were staying here for longer you would probably do the same. The air leaves a metallic taste in your mouth, and your eyes feel dry and sting when the wind hits them. On the outskirts of the city, factory smokestacks are belching more pollution into the air; the Korath have either given up on preserving this planet, or simply have too great a need for the goods manufactured here to be willing to shut the factories down.`
 	outfitter "Korath Basics"
+	tribute 100
+		threshold 60000
+		fleet "Large Quarg" 3
 
 planet "Leviathan Station"
 	attributes deep station
@@ -26534,6 +26561,9 @@ planet "Setar Fort"
 	description `There are several large Korath cities on this planet, but the ones farther from the equator have been covered by encroaching glaciers as the planet slowly enters a new ice age. A small number of crops are still grown in the open air, but many of the fields have now been covered with row upon row of gleaming glass as the Korath resort to greenhouse farming to lengthen the growing season and feed their remaining population more efficiently. Farther from the city, Korath ranchers tend herds of creatures that resemble giant, six-legged yaks.`
 	spaceport `This spaceport is the only place where you have ever encountered the Korath cooking food that actually smells appetizing. But in other places, the stench of the enormous cattle that they are trading more than makes up for it. Occasionally as you walk by the stalls, one of the cattle will lower its head to sniff at you. They seem docile enough, although perhaps a bit undernourished, but their horns are alarming.`
 	outfitter "Korath Basics"
+	tribute 100
+		threshold 60000
+		fleet "Large Quarg" 3
 
 planet "Shadow of Leaves"
 	attributes saryd urban
