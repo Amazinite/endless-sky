@@ -133,8 +133,6 @@ private:
 	std::multimap<std::string, std::pair<int, int>> unresolved;
 	// The actual conversation data:
 	std::vector<Node> nodes;
-	// For applying actions:
-	// std::map<Node, GameAction> actions;
 };
 
 
