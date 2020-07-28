@@ -43,12 +43,14 @@ class MissionAction {
 public:
 	MissionAction() = default;
 	// Construct and Load() at the same time.
-	MissionAction(const DataNode &node, const std::string &missionName);
+	MissionAction(const DataNode &node, const std::string &missionName, bool conversation = false);
 	
-	void Load(const DataNode &node, const std::string &missionName);
+	void Load(const DataNode &node, const std::string &missionName, bool conversation = false);
 	// Note: the Save() function can assume this is an instantiated mission, not
 	// a template, so it only has to save a subset of the data.
 	void Save(DataWriter &out) const;
+	
+	bool IsEmpty() const;
 	
 	int Payment() const;
 	
@@ -68,6 +70,13 @@ public:
 	
 	
 private:
+	// If this MissionAction's load function is called, then it is no longer
+	// considered empty.
+	bool empty = true;
+	// If this MissionAction is a part of a conversation, then there are
+	// certain things it is incapable of doing.
+	bool conversationAction = false;
+
 	std::string trigger;
 	std::string system;
 	LocationFilter systemFilter;

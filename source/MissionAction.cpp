@@ -134,19 +134,25 @@ namespace {
 
 
 // Construct and Load() at the same time.
-MissionAction::MissionAction(const DataNode &node, const string &missionName)
+MissionAction::MissionAction(const DataNode &node, const string &missionName, bool conversation)
 {
-	Load(node, missionName);
+	Load(node, missionName, conversation);
 }
 
 
 
-void MissionAction::Load(const DataNode &node, const string &missionName)
+void MissionAction::Load(const DataNode &node, const string &missionName, bool conversation)
 {
-	if(node.Size() >= 2)
-		trigger = node.Token(1);
-	if(node.Size() >= 3)
-		system = node.Token(2);
+	empty = false;
+	conversationAction = conversation;
+	
+	if(!conversationAction)
+	{
+		if(node.Size() >= 2)
+			trigger = node.Token(1);
+		if(node.Size() >= 3)
+			system = node.Token(2);
+	}
 	
 	for(const DataNode &child : node)
 	{
@@ -162,9 +168,11 @@ void MissionAction::Load(const DataNode &node, const string &missionName)
 		}
 		else if(key == "dialog")
 		{
+			if(conversationAction)
+				child.PrintTrace("\"dialog\" is not a valid action in a conversation:");
 			// Dialog text may be supplied from a stock named phrase, a
 			// private unnamed phrase, or directly specified.
-			if(hasValue && child.Token(1) == "phrase")
+			else if(hasValue && child.Token(1) == "phrase")
 			{
 				if(!child.HasChildren() && child.Size() == 3)
 					stockDialogPhrase = GameData::Phrases().Get(child.Token(2));
@@ -183,13 +191,25 @@ void MissionAction::Load(const DataNode &node, const string &missionName)
 				Dialog::ParseTextNode(child, 1, dialogText);
 		}
 		else if(key == "conversation" && child.HasChildren())
-			conversation.Load(child);
+		{
+			if(conversationAction)
+				child.PrintTrace("\"conversation\" is not a valid action in a conversation:");
+			else
+				conversation.Load(child);
+		}
 		else if(key == "conversation" && hasValue)
-			stockConversation = GameData::Conversations().Get(child.Token(1));
+		{
+			if(conversationAction)
+				child.PrintTrace("\"conversation\" is not a valid action in a conversation:");
+			else
+				stockConversation = GameData::Conversations().Get(child.Token(1));
+		}
 		else if(key == "outfit" && hasValue)
 		{
 			int count = (child.Size() < 3 ? 1 : static_cast<int>(child.Value(2)));
-			if(count)
+			if(conversationAction)
+				child.PrintTrace("\"outfit\" is not a valid action in a conversation:");
+			else if(count)
 				gifts[GameData::Outfits().Get(child.Token(1))] = count;
 			else
 			{
@@ -201,7 +221,9 @@ void MissionAction::Load(const DataNode &node, const string &missionName)
 		else if(key == "require" && hasValue)
 		{
 			int count = (child.Size() < 3 ? 1 : static_cast<int>(child.Value(2)));
-			if(count >= 0)
+			if(conversationAction)
+				child.PrintTrace("\"require\" is not a valid action in a conversation:");
+			else if(count >= 0)
 				requiredOutfits[GameData::Outfits().Get(child.Token(1))] = count;
 			else
 				child.PrintTrace("Skipping invalid \"require\" amount:");
@@ -232,7 +254,9 @@ void MissionAction::Load(const DataNode &node, const string &missionName)
 		}
 		else if(key == "system")
 		{
-			if(system.empty() && child.HasChildren())
+			if(conversationAction)
+				child.PrintTrace("\"system\" is not a valid action in a conversation:");
+			else if(system.empty() && child.HasChildren())
 				systemFilter.Load(child);
 			else
 				child.PrintTrace("Unsupported use of \"system\" LocationFilter:");
@@ -248,10 +272,13 @@ void MissionAction::Load(const DataNode &node, const string &missionName)
 // a template, so it only has to save a subset of the data.
 void MissionAction::Save(DataWriter &out) const
 {
-	if(system.empty())
-		out.Write("on", trigger);
-	else
-		out.Write("on", trigger, system);
+	if(!conversationAction)
+	{
+		if(system.empty())
+			out.Write("on", trigger);
+		else
+			out.Write("on", trigger, system);
+	}
 	out.BeginChild();
 	{
 		if(!systemFilter.IsEmpty())
@@ -316,6 +343,13 @@ void MissionAction::Save(DataWriter &out) const
 		conditions.Save(out);
 	}
 	out.EndChild();
+}
+
+
+
+bool MissionAction::IsEmpty() const
+{
+	return empty;
 }
 
 
@@ -455,7 +489,23 @@ void MissionAction::Do(PlayerInfo &player, UI *ui, const System *destination, co
 			DoGift(player, it.first, it.second, ui);
 	
 	if(payment)
-		player.Accounts().AddCredits(payment);
+	{
+		// Conversation actions don't block a mission from offering if a
+		// negative payment would drop the player's account balance below
+		// zero, so payment is handled differently within conversations.
+		if(conversationAction)
+		{
+			int64_t account = player.Accounts().Credits();
+			// If the payment is negative and the player doesn't have enough
+			// in their account, then the player's credits are reduced to 0.
+			if(account + payment >= 0)
+				player.Accounts().AddCredits(payment);
+			else
+				player.Accounts().AddCredits(-account);
+		}
+		else
+			player.Accounts().AddCredits(payment);
+	}
 	
 	for(const auto &it : events)
 		player.AddEvent(*it.first, player.GetDate() + it.second.first);
@@ -517,9 +567,9 @@ MissionAction MissionAction::Instantiate(map<string, string> &subs, const System
 		result.dialogText = Format::Replace(dialogText, subs);
 	
 	if(stockConversation)
-		result.conversation = stockConversation->Substitute(subs);
+		result.conversation = stockConversation->Substitute(subs, origin, jumps, payload);
 	else if(!conversation.IsEmpty())
-		result.conversation = conversation.Substitute(subs);
+		result.conversation = conversation.Substitute(subs, origin, jumps, payload);
 	
 	result.fail = fail;
 	
