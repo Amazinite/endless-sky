@@ -180,7 +180,7 @@ void Conversation::Load(const DataNode &node)
 			// Don't merge "action" nodes with any other nodes.
 			AddNode();
 			nodes.back().canMergeOnto = false;
-			nodes.back().action.load(child, "", true);
+			nodes.back().actions.Load(child, "");
 		}
 		// Check for common errors such as indenting a goto incorrectly:
 		else if(child.Size() > 1)
@@ -265,12 +265,12 @@ void Conversation::Save(DataWriter &out) const
 				out.EndChild();
 				continue;
 			}
-			if(!node.action.IsEmpty())
+			if(!node.actions.IsEmpty())
 			{
 				out.Write("action", TokenName(node.data[0].second));
 				out.BeginChild();
 				{
-					node.action.Save(out);
+					node.actions.Save(out);
 				}
 				out.EndChild();
 				continue;
@@ -310,18 +310,32 @@ bool Conversation::IsEmpty() const
 
 
 
+// Do text replacement throughout this conversation.
+Conversation Conversation::Substitute(const map<string, string> &subs) const
+{
+	Conversation result = *this;
+	for(Node &node : result.nodes)
+		for(pair<string, int> &choice : node.data)
+			choice.first = Format::Replace(choice.first, subs);
+	
+	return result;
+}
+
+
+
 // Do text replacement throughout this conversation, and instantiate any
 // potential actions.
-Conversation Conversation::Substitute(map<string, string> &subs, const System *origin, int jumps, int payload) const
+Conversation Conversation::Instantiate(map<string, string> &subs, int jumps, int payload) const
 {
 	Conversation result = *this;
 	for(Node &node : result.nodes)
 	{
 		for(pair<string, int> &choice : node.data)
 			choice.first = Format::Replace(choice.first, subs);
-		if(!node.action.IsEmpty())
-			node.action = node.action.Instantiate(subs, origin, jumps, payload);
+		if(!node.actions.IsEmpty())
+			node.actions = node.actions.Instantiate(subs, jumps, payload);
 	}
+
 	return result;
 }
 
@@ -379,7 +393,7 @@ bool Conversation::IsAction(int node) const
 	if(static_cast<unsigned>(node) >= nodes.size())
 		return false;
 	
-	return !nodes[node].action.IsEmpty();
+	return !nodes[node].actions.IsEmpty();
 }
 
 
@@ -396,13 +410,13 @@ const ConditionSet &Conversation::Conditions(int node) const
 
 
 // Get the action that the given node does.
-const MissionAction &Conversation::Action(int node) const
+const GameAction &Conversation::Action(int node) const
 {
-	static MissionAction empty;
+	static GameAction empty;
 	if(static_cast<unsigned>(node) >= nodes.size())
 		return empty;
 	
-	return nodes[node].action;
+	return nodes[node].actions;
 }
 
 

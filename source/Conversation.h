@@ -14,7 +14,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #define CONVERSATION_H_
 
 #include "ConditionSet.h"
-#include "MissionAction.h"
+#include "GameAction.h"
 
 #include <map>
 #include <string>
@@ -23,7 +23,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 class DataNode;
 class DataWriter;
-class MissionAction;
+class GameAction;
 class Sprite;
 
 
@@ -63,7 +63,9 @@ public:
 	
 	// Do text replacement throughout this conversation. This returns a new
 	// Conversation object with things like the player's name filled in.
-	Conversation Substitute(std::map<std::string, std::string> &subs, const System *origin = nullptr, int jumps = 0, int payload = 0) const;
+	Conversation Substitute(const std::map<std::string, std::string> &subs) const;
+	// Do text replacements and instantiate any GameActions.
+	Conversation Instantiate(std::map<std::string, std::string> &subs, int jumps = 0, int payload = 0) const;
 	
 	// The beginning of the conversation is node 0. Some nodes have choices for
 	// the user to select; others just automatically continue to another node.
@@ -74,7 +76,7 @@ public:
 	bool IsApply(int node) const;
 	bool IsAction(int node) const;
 	const ConditionSet &Conditions(int node) const;
-	const MissionAction &Action(int node) const;
+	const GameAction &Action(int node) const;
 	const std::string &Text(int node, int choice = 0) const;
 	const Sprite *Scene(int node) const;
 	int NextNode(int node, int choice = 0) const;
@@ -93,7 +95,7 @@ private:
 		// For applying condition changes or branching based on conditions:
 		ConditionSet conditions;
 		// For applying actions:
-		MissionAction action;
+		GameAction actions;
 		// The actual conversation text. If this node is not a choice, there
 		// will only be one entry in the vector. Each entry also stores the
 		// number of the node to go to next.
@@ -131,6 +133,8 @@ private:
 	std::multimap<std::string, std::pair<int, int>> unresolved;
 	// The actual conversation data:
 	std::vector<Node> nodes;
+	// For applying actions:
+	// std::map<Node, GameAction> actions;
 };
 
 
