@@ -17,7 +17,6 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #include "Dialog.h"
 #include "Format.h"
 #include "GameData.h"
-#include "MissionAction.h"
 #include "Sprite.h"
 #include "SpriteSet.h"
 
@@ -311,7 +310,8 @@ bool Conversation::IsEmpty() const
 
 
 
-// Do text replacement throughout this conversation.
+// Do text replacement throughout this conversation, and instantiate any
+// potential actions.
 Conversation Conversation::Substitute(map<string, string> &subs, const System *origin, int jumps, int payload) const
 {
 	Conversation result = *this;
@@ -373,13 +373,13 @@ bool Conversation::IsApply(int node) const
 
 
 
-// Check if the given converation node grants a payment.
+// Check if the given converation node does an action.
 bool Conversation::IsAction(int node) const
 {
 	if(static_cast<unsigned>(node) >= nodes.size())
 		return false;
 	
-	return nodes[node].action.IsEmpty();
+	return !nodes[node].action.IsEmpty();
 }
 
 
@@ -395,7 +395,7 @@ const ConditionSet &Conversation::Conditions(int node) const
 }
 
 
-// Get the payment that the given node applies.
+// Get the action that the given node does.
 const MissionAction &Conversation::Action(int node) const
 {
 	static MissionAction empty;
