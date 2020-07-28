@@ -195,6 +195,8 @@ GameAction GameAction::Instantiate(map<string, string> &subs, int jumps, int pay
 {
 	GameAction result;
 	
+	result.empty = empty;
+	
 	for(const auto &it : events)
 	{
 		// Allow randomization of event times. The second value in the pair is
