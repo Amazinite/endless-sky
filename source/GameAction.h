@@ -1,5 +1,5 @@
 /* GameAction.h
-Copyright (c) 2020 by Michael Zahniser
+Copyright (c) 2020 by Jonathan Steck
 
 Endless Sky is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -14,9 +14,6 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #define GAME_ACTION_H_
 
 #include "ConditionSet.h"
-#include "Conversation.h"
-#include "LocationFilter.h"
-#include "Phrase.h"
 
 #include <map>
 #include <memory>
@@ -27,11 +24,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 class DataNode;
 class DataWriter;
 class GameEvent;
-class Outfit;
 class PlayerInfo;
-class Ship;
-class System;
-class UI;
 
 
 

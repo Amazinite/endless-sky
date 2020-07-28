@@ -1,5 +1,5 @@
 /* GameAction.cpp
-Copyright (c) 2014 by Michael Zahniser
+Copyright (c) 2020 by Jonathan Steck
 
 Endless Sky is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -12,20 +12,14 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 #include "GameAction.h"
 
-#include "CargoHold.h"
-#include "ConversationPanel.h"
 #include "DataNode.h"
 #include "DataWriter.h"
 #include "Dialog.h"
 #include "Format.h"
 #include "GameData.h"
 #include "GameEvent.h"
-#include "Messages.h"
-#include "Outfit.h"
 #include "PlayerInfo.h"
 #include "Random.h"
-#include "Ship.h"
-#include "UI.h"
 
 #include <cstdlib>
 #include <vector>
