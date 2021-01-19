@@ -57,6 +57,7 @@ namespace {
 	const string SCROLL_SPEED = "Scroll speed";
 	const string FIGHTER_REPAIR = "Repair fighters in";
 	const string SHIP_OUTLINES = "Ship outlines in shops";
+	const string REARM_SETTING = "Fighters rearm from";
 }
 
 
@@ -180,6 +181,8 @@ bool PreferencesPanel::Click(int x, int y, int clicks)
 			}
 			else if(zone.Value() == EXPEND_AMMO)
 				Preferences::ToggleAmmoUsage();
+			else if(zone.Value() == REARM_SETTING)
+				Preferences::ToggleRearmSetting();
 			else if(zone.Value() == TURRET_TRACKING)
 				Preferences::Set(FOCUS_PREFERENCE, !Preferences::Has(FOCUS_PREFERENCE));
 			else if(zone.Value() == REACTIVATE_HELP)
@@ -444,6 +447,7 @@ void PreferencesPanel::DrawSettings()
 		"Automatic firing",
 		EXPEND_AMMO,
 		FIGHTER_REPAIR,
+		REARM_SETTING,
 		TURRET_TRACKING,
 		"\n",
 		"Performance",
@@ -513,6 +517,11 @@ void PreferencesPanel::DrawSettings()
 		}
 		else if(setting == EXPEND_AMMO)
 			text = Preferences::AmmoUsage();
+		else if(setting == REARM_SETTING)
+		{
+			text = Preferences::RearmSetting();
+			isOn = text != "nothing";
+		}
 		else if(setting == TURRET_TRACKING)
 		{
 			isOn = true;

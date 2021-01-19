@@ -33,6 +33,9 @@ namespace {
 	const string EXPEND_AMMO = "Escorts expend ammo";
 	const string FRUGAL_ESCORTS = "Escorts use ammo frugally";
 	
+	const vector<string> REARM_SETTINGS = {"cargo only", "installed only", "cargo first", "installed first", "nothing"};
+	int rearmIndex = 0;
+	
 	const vector<double> ZOOMS = {.25, .35, .50, .70, 1.00, 1.40, 2.00};
 	int zoomIndex = 4;
 	constexpr double VOLUME_SCALE = .25;
@@ -80,6 +83,8 @@ void Preferences::Load()
 			zoomIndex = max<int>(0, min<int>(node.Value(1), ZOOMS.size() - 1));
 		else if(node.Token(0) == "vsync")
 			vsyncIndex = max<int>(0, min<int>(node.Value(1), VSYNC_SETTINGS.size() - 1));
+		else if(node.Token(0) == "rearming")
+			rearmIndex = max<int>(0, min<int>(node.Value(1), REARM_SETTINGS.size() - 1));
 		else
 			settings[node.Token(0)] = (node.Size() == 1 || node.Value(1));
 	}
@@ -97,6 +102,7 @@ void Preferences::Save()
 	out.Write("scroll speed", scrollSpeed);
 	out.Write("view zoom", zoomIndex);
 	out.Write("vsync", vsyncIndex);
+	out.Write("rearming", rearmIndex);
 	
 	for(const auto &it : settings)
 		out.Write(it.first, it.second);
@@ -132,6 +138,22 @@ void Preferences::ToggleAmmoUsage()
 string Preferences::AmmoUsage()
 {
 	return Has(EXPEND_AMMO) ? Has(FRUGAL_ESCORTS) ? "frugally" : "always" : "never";
+}
+
+
+
+void Preferences::ToggleRearmSetting()
+{
+	++rearmIndex;
+	if(rearmIndex > static_cast<int>(REARM_SETTINGS.size() - 1))
+		rearmIndex = 0;
+}
+
+
+
+string Preferences::RearmSetting()
+{
+	return REARM_SETTINGS[rearmIndex];
 }
 
 

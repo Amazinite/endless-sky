@@ -38,6 +38,11 @@ public:
 	static void ToggleAmmoUsage();
 	static std::string AmmoUsage();
 	
+	// Toggle the ammo rearm setting for fighters, cycling between "cargo only,"
+	// "installed only," "cargo first," "installed first," and "nothing."
+	static void ToggleRearmSetting();
+	static std::string RearmSetting();
+	
 	// Scroll speed preference.
 	static int ScrollSpeed();
 	static void SetScrollSpeed(int speed);
