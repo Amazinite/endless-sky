@@ -194,6 +194,11 @@ void MissionPanel::Step()
 	if(GetUI()->IsTop(this) && player.GetPlanet() && player.GetDate() >= GameData::Start().GetDate() + 12)
 		DoHelp("map advanced");
 	DoHelp("jobs");
+	
+	// If the player aborted a mission while landed, that might have caused another
+	// mission to be failed or completed.
+	if(player.RecheckMissions())
+		player.CheckMissions(GetUI());
 }
 
 
@@ -820,6 +825,10 @@ void MissionPanel::AbortMission()
 		const Mission &toAbort = *acceptedIt;
 		++acceptedIt;
 		player.RemoveMission(Mission::ABORT, toAbort, GetUI());
+		// The mission that was just aborted may have failed or completed
+		// another mission. Only do this when the player is landed.
+		if(player.GetPlanet())
+			player.RecheckMissions(true);
 		if(acceptedIt == accepted.end() && !accepted.empty())
 			--acceptedIt;
 		if(acceptedIt != accepted.end() && !acceptedIt->IsVisible())

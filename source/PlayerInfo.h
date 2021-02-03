@@ -186,6 +186,12 @@ public:
 	void FailMission(const Mission &mission);
 	// Update mission status based on an event.
 	void HandleEvent(const ShipEvent &event, UI *ui);
+	// Marks the player's active missions as needing rechecked for failure or completion.
+	void RecheckMissions(bool recheck);
+	bool RecheckMissions() const;
+	// Check that any missions have been failed or completed, and remove any cargo or
+	// passengers from failed missions.
+	void CheckMissions(UI *ui);
 	
 	// Access the "condition" flags for this player.
 	int64_t GetCondition(const std::string &name) const;
@@ -298,6 +304,8 @@ private:
 	const Planet *planet = nullptr;
 	bool shouldLaunch = false;
 	bool isDead = false;
+	
+	bool recheckMissions = false;
 	
 	// The amount of in-game time played, in seconds.
 	double playTime = 0.0;

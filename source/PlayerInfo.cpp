@@ -1779,6 +1779,68 @@ void PlayerInfo::HandleEvent(const ShipEvent &event, UI *ui)
 
 
 
+void PlayerInfo::RecheckMissions(bool recheck)
+{
+	recheckMissions = recheck;
+}
+
+
+
+bool PlayerInfo::RecheckMissions() const
+{
+	return recheckMissions;
+}
+
+
+
+// Check if any missions have been failed or completed, and remove any cargo or
+// passengers from failed missions.
+void PlayerInfo::CheckMissions(UI *ui)
+{
+	recheckMissions = false;
+	
+	auto mit = missions.begin();
+	while(mit != missions.end())
+	{
+		Mission &mission = *mit;
+		++mit;
+		
+		if(mission.HasFailed(*this))
+		{
+			RemoveMission(Mission::FAIL, mission, ui);
+			recheckMissions = true;
+		}
+		else if(mission.CanComplete(*this))
+		{
+			RemoveMission(Mission::COMPLETE, mission, ui);
+			recheckMissions = true;
+		}
+	}
+	
+	// Search for any missions that have failed but for which we are still
+	// holding on to some cargo.
+	set<const Mission *> active;
+	for(const Mission &it : missions)
+		active.insert(&it);
+	
+	vector<const Mission *> missionsToRemove;
+	for(const auto &it : cargo.MissionCargo())
+		if(!active.count(it.first))
+			missionsToRemove.push_back(it.first);
+	for(const auto &it : cargo.PassengerList())
+		if(!active.count(it.first))
+			missionsToRemove.push_back(it.first);
+	for(const Mission *mission : missionsToRemove)
+		cargo.RemoveMissionCargo(mission);
+	
+	// Check if failure or completion of any missions caused another mission to
+	// fail or complete.
+	if(recheckMissions)
+		CheckMissions(ui);
+}
+
+
+
 // Get the value of the given condition (default 0).
 int64_t PlayerInfo::GetCondition(const string &name) const
 {
@@ -2651,33 +2713,7 @@ void PlayerInfo::StepMissions(UI *ui)
 	// One mission's actions may influence another mission, so loop through one
 	// more time to see if any mission is now completed or failed due to a change
 	// that happened in another mission the first time through.
-	mit = missions.begin();
-	while(mit != missions.end())
-	{
-		Mission &mission = *mit;
-		++mit;
-		
-		if(mission.HasFailed(*this))
-			RemoveMission(Mission::FAIL, mission, ui);
-		else if(mission.CanComplete(*this))
-			RemoveMission(Mission::COMPLETE, mission, ui);
-	}
-	
-	// Search for any missions that have failed but for which we are still
-	// holding on to some cargo.
-	set<const Mission *> active;
-	for(const Mission &it : missions)
-		active.insert(&it);
-	
-	vector<const Mission *> missionsToRemove;
-	for(const auto &it : cargo.MissionCargo())
-		if(!active.count(it.first))
-			missionsToRemove.push_back(it.first);
-	for(const auto &it : cargo.PassengerList())
-		if(!active.count(it.first))
-			missionsToRemove.push_back(it.first);
-	for(const Mission *mission : missionsToRemove)
-		cargo.RemoveMissionCargo(mission);
+	CheckMissions(ui);
 }
 
 

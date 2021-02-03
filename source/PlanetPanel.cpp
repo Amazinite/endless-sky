@@ -82,7 +82,14 @@ void PlanetPanel::Step()
 	{
 		Mission *mission = player.MissionToOffer(Mission::LANDING);
 		if(mission)
+		{
 			mission->Do(Mission::OFFER, player, GetUI());
+			// Any mission that was just offered may have failed or completed
+			// another mission.
+			player.RecheckMissions(true);
+		}
+		else if(player.RecheckMissions())
+			player.CheckMissions(GetUI());
 		else
 			player.HandleBlockedMissions(Mission::LANDING, GetUI());
 	}
@@ -232,6 +239,15 @@ void PlanetPanel::TakeOffIfReady()
 	if(mission)
 	{
 		mission->Do(Mission::OFFER, player, GetUI());
+		// Any mission that was just offered may have failed or completed another
+		// mission.
+		player.RecheckMissions(true);
+		return;
+	}
+	
+	if(player.RecheckMissions())
+	{
+		player.CheckMissions(GetUI());
 		return;
 	}
 	

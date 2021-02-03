@@ -78,7 +78,14 @@ void SpaceportPanel::Step()
 		if(!mission)
 			mission = player.MissionToOffer(Mission::LANDING);
 		if(mission)
+		{
 			mission->Do(Mission::OFFER, player, GetUI());
+			// Any mission that was just offered may have failed or completed
+			// another mission.
+			player.RecheckMissions(true);
+		}
+		else if(player.RecheckMissions())
+			player.CheckMissions(GetUI());
 		else
 			player.HandleBlockedMissions(Mission::SPACEPORT, GetUI());
 	}
