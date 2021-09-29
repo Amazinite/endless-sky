@@ -50,6 +50,8 @@ void Weapon::LoadWeapon(const DataNode &node)
 			isParallel = true;
 		else if(key == "gravitational")
 			isGravitational = true;
+		else if(key == "explode on death")
+			explodeOnDeath = true;
 		else if(child.Size() < 2)
 			child.PrintTrace("Skipping weapon attribute with no value specified:");
 		else if(key == "sprite")

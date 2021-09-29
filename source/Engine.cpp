@@ -1939,8 +1939,9 @@ void Engine::DoCollisions(Projectile &projectile)
 	shared_ptr<Ship> hit;
 	const Government *gov = projectile.GetGovernment();
 	
-	// If this "projectile" is a ship explosion, it always explodes.
-	if(!gov)
+	// If this "projectile" is a ship explosion (i.e. it has no government),
+	// it always explodes.
+	if(!gov || projectile.ShouldExplode())
 		closestHit = 0.;
 	else if(projectile.GetWeapon().IsPhasing() && projectile.Target())
 	{

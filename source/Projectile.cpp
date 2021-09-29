@@ -115,7 +115,11 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 				for(size_t i = 0; i < it.count; ++i)
 					projectiles.emplace_back(*this, it.offset, it.facing, it.weapon);
 		}
-		MarkForRemoval();
+		// Projectiles that explode on death explode the frame after their lifetime runs out.
+		if(!shouldExplode && weapon->ExplodeOnDeath())
+			shouldExplode = true;
+		else
+			MarkForRemoval();
 		return;
 	}
 	for(const auto &it : weapon->LiveEffects())
@@ -253,6 +257,13 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 	// sub-munitions next turn.
 	if(target && (position - target->Position()).Length() < weapon->SplitRange())
 		lifetime = 0;
+}
+
+
+
+bool Projectile::ShouldExplode() const
+{
+	return shouldExplode;
 }
 
 

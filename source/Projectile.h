@@ -52,6 +52,7 @@ public:
 	
 	// Move the projectile. It may create effects or submunitions.
 	void Move(std::vector<Visual> &visuals, std::vector<Projectile> &projectiles);
+	bool ShouldExplode() const;
 	// This projectile hit something. Create the explosion, if any. This also
 	// marks the projectile as needing deletion.
 	void Explode(std::vector<Visual> &visuals, double intersection, Point hitVelocity = Point());
@@ -92,6 +93,7 @@ private:
 	int lifetime = 0;
 	double distanceTraveled = 0;
 	bool hasLock = true;
+	bool shouldExplode = false;
 };
 
 
