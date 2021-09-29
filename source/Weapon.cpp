@@ -50,6 +50,8 @@ void Weapon::LoadWeapon(const DataNode &node)
 			isParallel = true;
 		else if(key == "gravitational")
 			isGravitational = true;
+		else if(key == "no collisions")
+			canCollide = false;
 		else if(key == "explode on death")
 			explodeOnDeath = true;
 		else if(child.Size() < 2)

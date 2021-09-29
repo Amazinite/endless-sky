@@ -143,6 +143,9 @@ public:
 	// Gravitational weapons deal the same amount of hit force to a ship regardless
 	// of its mass.
 	bool IsGravitational() const;
+	// The projectiles of most weapons will collide with anything they hit, but some
+	// projectiles may pass through ships and asteroids, including the target ship.
+	bool CanCollide() const;
 	// Some projectiles explode when they die, dealing any blast radius damage regardless
 	// of whether the projectile was triggered or impacted anything.
 	bool ExplodeOnDeath() const;
@@ -220,6 +223,7 @@ private:
 	bool isPhasing = false;
 	bool isDamageScaled = true;
 	bool isGravitational = false;
+	bool canCollide = true;
 	bool explodeOnDeath = false;
 	// Guns and missiles are by default aimed a converged point at the
 	// maximum weapons range in front of the ship. When either the installed
@@ -378,6 +382,7 @@ inline bool Weapon::IsSafe() const { return isSafe; }
 inline bool Weapon::IsPhasing() const { return isPhasing; }
 inline bool Weapon::IsDamageScaled() const { return isDamageScaled; }
 inline bool Weapon::IsGravitational() const { return isGravitational; }
+inline bool Weapon::CanCollide() const { return canCollide; }
 inline bool Weapon::ExplodeOnDeath() const { return explodeOnDeath; }
 
 inline double Weapon::ShieldDamage() const { return TotalDamage(SHIELD_DAMAGE); }

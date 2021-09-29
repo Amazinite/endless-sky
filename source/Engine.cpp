@@ -1972,7 +1972,7 @@ void Engine::DoCollisions(Projectile &projectile)
 				}
 		
 		// If nothing triggered the projectile, check for collisions with ships.
-		if(closestHit > 0.)
+		if(closestHit > 0. && projectile.GetWeapon().CanCollide())
 		{
 			Ship *ship = reinterpret_cast<Ship *>(shipCollisions.Line(projectile, &closestHit));
 			if(ship)
@@ -1984,7 +1984,7 @@ void Engine::DoCollisions(Projectile &projectile)
 		// "Phasing" projectiles can pass through asteroids. For all other
 		// projectiles, check if they've hit an asteroid that is closer than any
 		// ship that they have hit.
-		if(!projectile.GetWeapon().IsPhasing())
+		if(!projectile.GetWeapon().IsPhasing() && projectile.GetWeapon().CanCollide())
 		{
 			Body *asteroid = asteroids.Collide(projectile, &closestHit);
 			if(asteroid)
