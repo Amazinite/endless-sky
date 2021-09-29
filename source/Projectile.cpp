@@ -54,6 +54,7 @@ Projectile::Projectile(const Ship &parent, Point position, Angle angle, const We
 	
 	velocity += this->angle.Unit() * (weapon->Velocity() + Random::Real() * weapon->RandomVelocity());
 	
+	emitter += weapon->Emitter();
 	// If a random lifetime is specified, add a random amount up to that amount.
 	if(weapon->RandomLifetime())
 		lifetime += Random::Int(weapon->RandomLifetime() + 1);
@@ -82,6 +83,7 @@ Projectile::Projectile(const Projectile &parent, const Point &offset, const Angl
 	}
 	velocity += this->angle.Unit() * (weapon->Velocity() + Random::Real() * weapon->RandomVelocity());
 	
+	emitter += weapon->Emitter();
 	// If a random lifetime is specified, add a random amount up to that amount.
 	if(weapon->RandomLifetime())
 		lifetime += Random::Int(weapon->RandomLifetime() + 1);
@@ -121,6 +123,24 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 		else
 			MarkForRemoval();
 		return;
+	}
+	if(!weapon->Emit().empty())
+	{
+		if(!burstEmitter && burstEmitterCount)
+		{
+			for(const auto &it : weapon->Emit())
+				for(size_t i = 0; i < it.count; ++i)
+					projectiles.emplace_back(*this, it.offset, it.facing, it.weapon);
+			emitter += weapon->Emitter();
+			burstEmitter += weapon->BurstEmitter();
+			--burstEmitterCount;
+		}
+		if(emitter > 0.)
+			--emitter;
+		if(emitter <= 0.)
+			burstEmitterCount = weapon->BurstEmitterCount();
+		if(burstEmitter > 0.)
+			--burstEmitter;		
 	}
 	for(const auto &it : weapon->LiveEffects())
 		if(!Random::Int(it.second))

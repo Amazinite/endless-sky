@@ -94,6 +94,10 @@ private:
 	double distanceTraveled = 0;
 	bool hasLock = true;
 	bool shouldExplode = false;
+	
+	double emitter = 0.;
+	double burstEmitter = 0.;
+	int burstEmitterCount = 0;
 };
 
 

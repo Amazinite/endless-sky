@@ -70,6 +70,7 @@ public:
 	const std::map<const Effect *, int> &TargetEffects() const;
 	const std::map<const Effect *, int> &DieEffects() const;
 	const std::vector<Submunition> &Submunitions() const;
+	const std::vector<Submunition> &Emit() const;
 	
 	// Accessor functions for various attributes.
 	int Lifetime() const;
@@ -77,6 +78,9 @@ public:
 	double Reload() const;
 	double BurstReload() const;
 	int BurstCount() const;
+	double Emitter() const;
+	double BurstEmitter() const;
+	int BurstEmitterCount() const;
 	int Homing() const;
 	
 	int AmmoUsage() const;
@@ -215,6 +219,7 @@ private:
 	std::map<const Effect *, int> targetEffects;
 	std::map<const Effect *, int> dieEffects;
 	std::vector<Submunition> submunitions;
+	std::vector<Submunition> emit;
 	
 	// This stores whether or not the weapon has been loaded.
 	bool isWeapon = false;
@@ -238,6 +243,9 @@ private:
 	double reload = 1.;
 	double burstReload = 1.;
 	int burstCount = 1;
+	double emitter = 1.;
+	double burstEmitter = 1.;
+	int burstEmitterCount = 1;
 	int homing = 0;
 	
 	int missileStrength = 0;
@@ -329,6 +337,9 @@ inline int Weapon::RandomLifetime() const { return randomLifetime; }
 inline double Weapon::Reload() const { return reload; }
 inline double Weapon::BurstReload() const { return burstReload; }
 inline int Weapon::BurstCount() const { return burstCount; }
+inline double Weapon::Emitter() const { return emitter; }
+inline double Weapon::BurstEmitter() const { return burstEmitter; }
+inline int Weapon::BurstEmitterCount() const { return burstEmitterCount; }
 inline int Weapon::Homing() const { return homing; }
 
 inline int Weapon::MissileStrength() const { return missileStrength; }

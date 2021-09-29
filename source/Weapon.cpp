@@ -94,17 +94,18 @@ void Weapon::LoadWeapon(const DataNode &node)
 			int count = (child.Size() >= 3) ? child.Value(2) : 1;
 			dieEffects[GameData::Effects().Get(child.Token(1))] += count;
 		}
-		else if(key == "submunition")
+		else if(key == "submunition" || key == "emit")
 		{
-			submunitions.emplace_back(
+			auto &subs = (key == "submunition" ? submunitions : emit);
+			subs.emplace_back(
 				GameData::Outfits().Get(child.Token(1)),
 				(child.Size() >= 3) ? child.Value(2) : 1);
 			for(const DataNode &grand : child)
 			{
 				if((grand.Size() >= 2) && (grand.Token(0) == "facing"))
-					submunitions.back().facing = Angle(grand.Value(1));
+					subs.back().facing = Angle(grand.Value(1));
 				else if((grand.Size() >= 3) && (grand.Token(0) == "offset"))
-					submunitions.back().offset = Point(grand.Value(1), grand.Value(2));
+					subs.back().offset = Point(grand.Value(1), grand.Value(2));
 				else
 					child.PrintTrace("Skipping unknown or incomplete sub-munition attribute:");
 			}
@@ -122,6 +123,12 @@ void Weapon::LoadWeapon(const DataNode &node)
 				burstReload = max(1., value);
 			else if(key == "burst count")
 				burstCount = max(1., value);
+			else if(key == "emitter")
+				emitter = max(1., value);
+			else if(key == "burst emitter reload")
+				burstEmitter = max(1., value);
+			else if(key == "burst emitter count")
+				burstEmitterCount = max(1., value);
 			else if(key == "homing")
 				homing = value;
 			else if(key == "missile strength")
@@ -396,6 +403,13 @@ const vector<Weapon::Submunition> &Weapon::Submunitions() const
 
 
 
+const vector<Weapon::Submunition> &Weapon::Emit() const
+{
+	return emit;
+}
+
+
+
 double Weapon::TotalLifetime() const
 {
 	if(rangeOverride)
@@ -448,6 +462,7 @@ void Weapon::SetTurretTurn(double rate)
 
 double Weapon::TotalDamage(int index) const
 {
+	double totalEmits = lifetime / emitter;
 	if(!calculatedDamage)
 	{
 		calculatedDamage = true;
@@ -455,6 +470,8 @@ double Weapon::TotalDamage(int index) const
 		{
 			for(const auto &it : submunitions)
 				damage[i] += it.weapon->TotalDamage(i) * it.count;
+			for(const auto &it : emit)
+				damage[i] += it.weapon->TotalDamage(i) * it.count * totalEmits;
 			doesDamage |= (damage[i] > 0.);
 		}
 	}
