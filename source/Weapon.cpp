@@ -462,7 +462,6 @@ void Weapon::SetTurretTurn(double rate)
 
 double Weapon::TotalDamage(int index) const
 {
-	double totalEmits = lifetime / emitter;
 	if(!calculatedDamage)
 	{
 		calculatedDamage = true;
@@ -470,8 +469,6 @@ double Weapon::TotalDamage(int index) const
 		{
 			for(const auto &it : submunitions)
 				damage[i] += it.weapon->TotalDamage(i) * it.count;
-			for(const auto &it : emit)
-				damage[i] += it.weapon->TotalDamage(i) * it.count * totalEmits;
 			doesDamage |= (damage[i] > 0.);
 		}
 	}
