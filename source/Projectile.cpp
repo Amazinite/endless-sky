@@ -96,6 +96,7 @@ Projectile::Projectile(Point position, const Weapon *weapon)
 	: weapon(weapon)
 {
 	this->position = std::move(position);
+	shouldExplode = true;
 }
 
 
