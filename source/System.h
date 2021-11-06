@@ -13,11 +13,13 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
+#include "AsteroidBelt.h"
 #include "Hazard.h"
 #include "Point.h"
 #include "RandomEvent.h"
 #include "Set.h"
 #include "StellarObject.h"
+#include "WeightedList.h"
 
 #include <set>
 #include <string>
@@ -110,8 +112,10 @@ public:
 	const StellarObject *FindStellar(const Planet *planet) const;
 	// Get the habitable zone's center.
 	double HabitableZone() const;
-	// Get the radius of the asteroid belt.
-	double AsteroidBelt() const;
+	// Get the radius of an asteroid belt.
+	double AsteroidBeltRadius() const;
+	// Get the list of asteroid belt radii.
+	const WeightedList<AsteroidBelt> &AsteroidBelts() const;
 	// Get how far ships can jump from this system.
 	double JumpRange() const; 
 	// Get the rate of solar collection and ramscoop refueling.
@@ -196,7 +200,7 @@ private:
 	std::vector<RandomEvent<Fleet>> fleets;
 	std::vector<RandomEvent<Hazard>> hazards;
 	double habitable = 1000.;
-	double asteroidBelt = 1500.;
+	WeightedList<AsteroidBelt> belts;
 	double jumpRange = 0.;
 	double solarPower = 0.;
 	double solarWind = 0.;

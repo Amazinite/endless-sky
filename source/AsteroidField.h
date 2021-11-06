@@ -17,12 +17,14 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #include "Body.h"
 #include "CollisionSet.h"
 #include "Point.h"
+#include "WeightedList.h"
 
 #include <list>
 #include <memory>
 #include <string>
 #include <vector>
 
+class AsteroidBelt;
 class DrawList;
 class Flotsam;
 class Minable;
@@ -48,7 +50,7 @@ public:
 	// Reset the asteroid field (typically because you entered a new system).
 	void Clear();
 	void Add(const std::string &name, int count, double energy = 1.);
-	void Add(const Minable *minable, int count, double energy = 1., double beltRadius = 1500.);
+	void Add(const Minable *minable, int count, double energy, const WeightedList<AsteroidBelt> &belts);
 	
 	// Move all the asteroids forward one time step, and populate the asteroid and minable collision sets.
 	void Step(std::vector<Visual> &visuals, std::list<std::shared_ptr<Flotsam>> &flotsam, int step);

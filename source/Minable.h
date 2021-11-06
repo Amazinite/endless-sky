@@ -23,6 +23,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #include <string>
 #include <vector>
 
+class AsteroidBelt;
 class DataNode;
 class Effect;
 class Flotsam;
@@ -49,8 +50,8 @@ public:
 	const std::string &Name() const;
 	
 	// Place a minable object with up to the given energy level, on a random
-	// orbit and a random position along that orbit.
-	void Place(double energy, double beltRadius);
+	// orbit and a random position along the given belt.
+	void Place(double energy, const AsteroidBelt &belt);
 	
 	// Move the object forward one step. If it has been reduced to zero hull, it
 	// will "explode" instead of moving, creating flotsam and explosion effects.

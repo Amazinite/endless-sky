@@ -96,7 +96,7 @@ void System::Load(const DataNode &node, Set<Planet> &planets)
 	
 	// For the following keys, if this data node defines a new value for that
 	// key, the old values should be cleared (unless using the "add" keyword).
-	set<string> shouldOverwrite = {"asteroids", "attributes", "fleet", "link", "object", "hazard"};
+	set<string> shouldOverwrite = {"asteroids", "attributes", "belt", "fleet", "link", "object", "hazard"};
 	
 	for(const DataNode &child : node)
 	{
@@ -145,6 +145,8 @@ void System::Load(const DataNode &node, Set<Planet> &planets)
 				fleets.clear();
 			else if(key == "hazard")
 				hazards.clear();
+			else if(key == "belt")
+				belts.clear();
 			else if(key == "object")
 			{
 				// Make sure any planets that were linked to this system know
@@ -248,6 +250,21 @@ void System::Load(const DataNode &node, Set<Planet> &planets)
 			else
 				hazards.emplace_back(hazard, child.Value(valueIndex + 1));
 		}
+		else if(key == "belt")
+		{
+			AsteroidBelt belt(child, valueIndex);
+			if(remove)
+			{
+				for(auto it = belts.begin(); it != belts.end(); ++it)
+					if(it->Radius() == belt.Radius())
+					{
+						belts.eraseAt(it);
+						break;
+					}
+			}
+			else
+				belts.emplace_back(belt);
+		}
 		// Handle the attributes which cannot be "removed."
 		else if(remove)
 		{
@@ -265,8 +282,6 @@ void System::Load(const DataNode &node, Set<Planet> &planets)
 			music = value;
 		else if(key == "habitable")
 			habitable = child.Value(valueIndex);
-		else if(key == "belt")
-			asteroidBelt = child.Value(valueIndex);
 		else if(key == "jump range")
 			jumpRange = max(0., child.Value(valueIndex));
 		else if(key == "haze")
@@ -343,6 +358,9 @@ void System::Load(const DataNode &node, Set<Planet> &planets)
 	// Print a warning if this system wasn't explicitly given a position.
 	if(!hasPosition)
 		node.PrintTrace("Warning: system will be ignored due to missing position:");
+	// Systems without an asteroid belt defined have a default belt.
+	if(belts.empty())
+		belts.emplace_back(AsteroidBelt());
 }
 
 
@@ -575,10 +593,18 @@ double System::HabitableZone() const
 
 
 
-// Get the radius of the asteroid belt.
-double System::AsteroidBelt() const
+// Get the radius of an asteroid belt.
+double System::AsteroidBeltRadius() const
 {
-	return asteroidBelt;
+	return belts.Get().Radius();
+}
+
+
+
+// Get the list of asteroid belt radii.
+const WeightedList<AsteroidBelt> &System::AsteroidBelts() const
+{
+	return belts;
 }
 
 

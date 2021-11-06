@@ -69,6 +69,8 @@
 		<Unit filename="source/Angle.h" />
 		<Unit filename="source/Armament.cpp" />
 		<Unit filename="source/Armament.h" />
+		<Unit filename="source/AsteroidBelt.cpp" />
+		<Unit filename="source/AsteroidBelt.h" />
 		<Unit filename="source/AsteroidField.cpp" />
 		<Unit filename="source/AsteroidField.h" />
 		<Unit filename="source/Audio.cpp" />

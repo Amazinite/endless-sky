@@ -12,6 +12,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 #include "AsteroidField.h"
 
+#include "AsteroidBelt.h"
 #include "DrawList.h"
 #include "Mask.h"
 #include "Minable.h"
@@ -19,6 +20,7 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #include "Random.h"
 #include "Screen.h"
 #include "SpriteSet.h"
+#include "WeightedList.h"
 
 #include <algorithm>
 #include <cmath>
@@ -61,7 +63,7 @@ void AsteroidField::Add(const string &name, int count, double energy)
 
 
 
-void AsteroidField::Add(const Minable *minable, int count, double energy, double beltRadius)
+void AsteroidField::Add(const Minable *minable, int count, double energy, const WeightedList<AsteroidBelt> &belts)
 {
 	// Double check that the given asteroid is defined.
 	if(!minable || !minable->GetMask().IsLoaded())
@@ -71,7 +73,7 @@ void AsteroidField::Add(const Minable *minable, int count, double energy, double
 	for(int i = 0; i < count; ++i)
 	{
 		minables.emplace_back(new Minable(*minable));
-		minables.back()->Place(energy, beltRadius);
+		minables.back()->Place(energy, belts.Get());
 	}
 }
 
