@@ -2598,6 +2598,7 @@ ship "Protector"
 		"Liquid Nitrogen Cooler"
 		"Laser Rifle" 6
 		
+		"X1100 Ion Reverse Thruster"
 		"X3700 Ion Thruster"
 		"X3200 Ion Steering"
 		"Hyperdrive"
