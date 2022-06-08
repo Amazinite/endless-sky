@@ -72,7 +72,8 @@ public:
 	// marks the projectile as needing deletion.
 	void Explode(std::vector<Visual> &visuals, double intersection, Point hitVelocity = Point());
 	// Get the amount of clipping that should be applied when drawing this projectile.
-	double Clip() const;
+	double StartClip() const;
+	double EndClip() const;
 	// This projectile was killed, e.g. by an anti-missile system.
 	void Kill();
 
@@ -113,7 +114,11 @@ private:
 	// The change in velocity of all stages of this projectile
 	// relative to the firing ship.
 	Point dV;
-	double clip = 1.;
+	// TESTING PURPOSES ONLY: Give a start clip of 0.5 to all projectiles.
+	// The intention is for all projectiles to lose the first half of their
+	// sprite. The normal default start clip would be 0.0.
+	double startClip = 0.5;
+	double endClip = 1.;
 	int lifetime = 0;
 	double distanceTraveled = 0;
 	bool hasLock = true;

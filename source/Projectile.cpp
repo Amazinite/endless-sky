@@ -271,7 +271,7 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 // marks the projectile as needing deletion.
 void Projectile::Explode(vector<Visual> &visuals, double intersection, Point hitVelocity)
 {
-	clip = intersection;
+	endClip = intersection;
 	distanceTraveled += dV.Length() * intersection;
 	for(const auto &it : weapon->HitEffects())
 		for(int i = 0; i < it.second; ++i)
@@ -284,9 +284,16 @@ void Projectile::Explode(vector<Visual> &visuals, double intersection, Point hit
 
 
 // Get the amount of clipping that should be applied when drawing this projectile.
-double Projectile::Clip() const
+double Projectile::StartClip() const
 {
-	return clip;
+	return startClip;
+}
+
+
+
+double Projectile::EndClip() const
+{
+	return endClip;
 }
 
 

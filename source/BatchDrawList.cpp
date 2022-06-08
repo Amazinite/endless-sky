@@ -53,7 +53,7 @@ void BatchDrawList::SetCenter(const Point &center)
 
 
 // Add an unswizzled object based on the Body class.
-bool BatchDrawList::Add(const Body &body, float clip)
+bool BatchDrawList::Add(const Body &body, float startClip, float endClip)
 {
 	// TODO: Rather than compensate using 1/2 the Visual | Projectile velocity, we should
 	// extend the Sprite class to know its reference point. For most sprites, this will be
@@ -65,7 +65,7 @@ bool BatchDrawList::Add(const Body &body, float clip)
 	// we want it to be drawn with its center halfway to the target. For longer-lived projectiles, we
 	// expect the position to be the actual location of the projectile at that point in time.
 	Point position = (body.Position() + .5 * body.Velocity() - center) * zoom;
-	return Add(body, position, clip);
+	return Add(body, position, startClip, endClip);
 }
 
 
@@ -73,7 +73,7 @@ bool BatchDrawList::Add(const Body &body, float clip)
 // TODO: Once we have sprite reference positions, this method will not be needed.
 bool BatchDrawList::AddVisual(const Body &visual)
 {
-	return Add(visual, (visual.Position() - center) * zoom, 1.f);
+	return Add(visual, (visual.Position() - center) * zoom, 0.f, 1.f);
 }
 
 
@@ -114,7 +114,7 @@ bool BatchDrawList::Cull(const Body &body, const Point &position) const
 
 
 
-bool BatchDrawList::Add(const Body &body, Point position, float clip)
+bool BatchDrawList::Add(const Body &body, Point position, float startClip, float endClip)
 {
 	if(Cull(body, position))
 		return false;
@@ -130,10 +130,16 @@ bool BatchDrawList::Add(const Body &body, Point position, float clip)
 	Point uh = unit * body.Height();
 
 	// Get the "bottom" corner, the one that won't be clipped.
+	// MONKEY BRAIN NOTE: this comment above notes how the bottom corner won't be
+	// clipped. This is NO LONGER TRUE if we add startClip. I think to push the projectile
+	// sprite forward to where we want it to go, we need to fiddle with this Point
+	// using startClip.
 	Point topLeft = position - (uw + uh);
 	// Scale the vectors and apply clipping to the "height" of the sprite.
 	uw *= 2.;
-	uh *= 2.f * clip;
+	// MONKEY BRAIN NOTE: we need to use max so that endClip and startClip don't push past each
+	// other and turn the height negative, which I imagine would flip the sprite upside-down.
+	uh *= 2.f * max(0.f, endClip - startClip);
 
 	// Calculate the other three corners.
 	Point topRight = topLeft + uw;
@@ -142,12 +148,12 @@ bool BatchDrawList::Add(const Body &body, Point position, float clip)
 
 	// Push two copies of the first and last vertices to mark the break between
 	// the sprites.
-	Push(v, topLeft, 0.f, 1.f, frame);
-	Push(v, topLeft, 0.f, 1.f, frame);
-	Push(v, topRight, 1.f, 1.f, frame);
-	Push(v, bottomLeft, 0.f, 1.f - clip, frame);
-	Push(v, bottomRight, 1.f, 1.f - clip, frame);
-	Push(v, bottomRight, 1.f, 1.f - clip, frame);
+	Push(v, topLeft, 0.f, 1.f - startClip, frame);
+	Push(v, topLeft, 0.f, 1.f - startClip, frame);
+	Push(v, topRight, 1.f, 1.f - startClip, frame);
+	Push(v, bottomLeft, 0.f, 1.f - endClip, frame);
+	Push(v, bottomRight, 1.f, 1.f - endClip, frame);
+	Push(v, bottomRight, 1.f, 1.f - endClip, frame);
 
 	return true;
 }

@@ -32,7 +32,7 @@ public:
 	void SetCenter(const Point &center);
 
 	// Add an unswizzled object based on the Body class.
-	bool Add(const Body &body, float clip = 1.f);
+	bool Add(const Body &body, float startClip = 0.f, float endClip = 1.f);
 	bool AddVisual(const Body &visual);
 
 	// Draw all the items in this list.
@@ -44,7 +44,7 @@ private:
 	bool Cull(const Body &body, const Point &position) const;
 
 	// Add the given body at the given position.
-	bool Add(const Body &body, Point position, float clip);
+	bool Add(const Body &body, Point position, float startClip, float endClip);
 
 
 private:

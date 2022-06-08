@@ -1544,7 +1544,7 @@ void Engine::CalculateStep()
 	}
 	// Draw the projectiles.
 	for(const Projectile &projectile : projectiles)
-		batchDraw[calcTickTock].Add(projectile, projectile.Clip());
+		batchDraw[calcTickTock].Add(projectile, projectile.StartClip(), projectile.EndClip());
 	// Draw the visuals.
 	for(const Visual &visual : visuals)
 		batchDraw[calcTickTock].AddVisual(visual);
