@@ -43,7 +43,7 @@ outfit "Locust Turret"
 	weapon
 		sprite "projectile/locust blaster"
 		"hardpoint sprite" "hardpoint/repeater turret"
-		"hardpoint offset" 20
+		"hardpoint offset" 40
 		sound "locust blaster"
 		"hit effect" "bullet impact"
 		"inaccuracy" 5
