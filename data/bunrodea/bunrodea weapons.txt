@@ -109,9 +109,9 @@ outfit "Thorax Cannon"
 		"live effect" "yellow spark" 140
 		"live effect" "yellow spark trail" 840
 		"live effect" "yellow spark twinkle" 400
-		"hit effect" "finisher impact"
-		"hit effect" "spark" 20
-		"hit effect" "yellow spark fragment" 200
+		"hit effect" "finisher impact" 2
+		"hit effect" "spark" 10
+		"hit effect" "yellow spark fragment" 150
 		"inaccuracy" 0
 		"velocity" 15
 		"lifetime" 120
@@ -144,7 +144,7 @@ effect "yellow spark trail"
 	"random frame rate" 6
 	"random velocity" 5
 	"random spin" 10
-	"velocity scale" 0.9
+	"velocity scale" 0.2
 	
 effect "yellow spark twinkle"
 	sprite "effect/yellow spark"
@@ -159,11 +159,13 @@ effect "yellow spark twinkle"
 effect "yellow spark fragment"
 	sprite "effect/yellow spark"
 		"no repeat"
-		"frame rate" 5
-	"lifetime" 40
+		"frame rate" 4
+	"lifetime" 5
 	"random angle" 360
 	"random velocity" 6
-	"velocity scale" -0.5
+	"random spin" 10
+	"velocity scale" -0.1
+
 
 
 outfit "Swarm Clip"
@@ -227,6 +229,7 @@ effect "swarm flare"
 	"velocity scale" 0.1
 
 
+
 outfit "Buzzer Anti-Missile"
 	category "Turrets"
 	cost 1195000
@@ -237,7 +240,7 @@ outfit "Buzzer Anti-Missile"
 	"turret mounts" -1
 	weapon
 		"hardpoint sprite" "hardpoint/warder"
-		"hardpoint offset" 3.
+		#"hardpoint offset"
 		"hit effect" "buzzer"
 		"anti-missile" 4
 		"velocity" 300
@@ -248,9 +251,9 @@ outfit "Buzzer Anti-Missile"
 	description "As the Korath began to saturate systems with mines, the effectiveness of Bunrodean fighters dropped substantially. In response, the Bunrodea developed this rapid-fire anti-missile turret, able to clear sections of a system of Korath mines at blinding speed."
 
 effect "buzzer"
-	sprite "effect/warder"
+	sprite "effect/buzzer am"
 		"no repeat"
-		"frame rate" 6
+		"frame rate" 10
 	sound "buzzer am"
 	"lifetime" 11
 	"velocity scale" 1
