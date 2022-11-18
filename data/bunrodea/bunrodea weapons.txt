@@ -73,7 +73,7 @@ outfit "Mandible Cannon"
 			"frame rate" 10
 			"random start frame"
 		sound "mandible cannon"
-		"hit effect" "protonq impact"
+		"hit effect" "proton impact"
 		"inaccuracy" .1
 		"velocity" 34
 		"lifetime" 25
