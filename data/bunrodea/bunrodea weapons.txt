@@ -42,7 +42,7 @@ outfit "Locust Turret"
 	"turret mounts" -1
 	weapon
 		sprite "projectile/locust blaster"
-		"hardpoint sprite" "hardpoint/repeater turret"
+		"hardpoint sprite" "hardpoint/locust turret"
 		"hardpoint offset" 40
 		sound "locust blaster"
 		"hit effect" "bullet impact"
@@ -248,7 +248,7 @@ outfit "Buzzer Anti-Missile"
 	"weapon capacity" -19
 	"turret mounts" -1
 	weapon
-		"hardpoint sprite" "hardpoint/warder"
+		"hardpoint sprite" "hardpoint/buzzer am"
 		#"hardpoint offset"
 		"hit effect" "buzzer"
 		"anti-missile" 4
