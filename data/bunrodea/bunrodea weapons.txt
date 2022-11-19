@@ -228,6 +228,15 @@ effect "swarm flare"
 	"lifetime" 40
 	"velocity scale" 0.1
 
+effect "swarm impact"
+	sprite "effect/particle impact"
+		"no repeat"
+		"frame rate" 30
+	sound "explosion tiny"
+	"lifetime" 20
+	"random angle" 2
+	"random spin" 10
+	"velocity scale" -.05
 
 
 outfit "Buzzer Anti-Missile"
