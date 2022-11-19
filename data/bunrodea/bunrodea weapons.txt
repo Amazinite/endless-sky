@@ -249,7 +249,7 @@ outfit "Buzzer Anti-Missile"
 	"turret mounts" -1
 	weapon
 		"hardpoint sprite" "hardpoint/buzzer am"
-		#"hardpoint offset"
+		"hardpoint offset" 5
 		"hit effect" "buzzer"
 		"anti-missile" 4
 		"velocity" 300
