@@ -76,7 +76,7 @@ Version 0.10.3
 		  * Large: +0.0%
 		  * Huge: -5.1%
 		* Put in words, small engines have been made stronger while large engines have been made slightly weaker. The result of this is that smaller ships should be generally quicker than they were before while larger ships should either see no change or should be slightly slower.
-		* Afterburners have been unchanged.
+		* Afterburners are unchanged.
 	  * Reduced the cost of the supercapacitor from 9,000 credits to 1,500, to bring it closer in line with other human batteries while still having a slight "premium" for its tiny size. (@Zitchas)
 	  * Removed a few ship variants from the pirate raid fleet that had high damage weapons not conducive to disabling their target. (@Zitchas)
 	  * The Ka'het Nullifier has been rebalanced to more effective disable targets by draining their energy. (@beccabunny)
@@ -91,9 +91,9 @@ Version 0.10.3
 	  * Tweaked the wording of the description of the Vivid Aether planet. (@Zitchas)
 	  * Ringworld planets now have a "ringworld" attribute for missions to use. (@Quantumshark)
 	  * Added a "frozen" attribute to various cold and frozen worlds for missions and spaceport news to use. (@dorbarker, @Anarchist2)
-	  * The Unfettered Solifuge and Violin Spider are now added to the Unfettered shipyards at the same time that the ships are added to Unfettered fleets. (@Hurleveur)
+	  * The Unfettered Solifuge and Violin Spider are now added to the Unfettered shipyards at the same time as they are added to Unfettered fleets. (@Hurleveur)
 	  * Added the "forest" attribute to Stormhold and changed its planet sprite in order to better match the planet's description. (@bene-dictator)
-	  * Various Free Worlds missions which state that mission NPC ships cargo on them now actually have the cargo you're told they have. (@bene-dictator)
+	  * Various NPC ships in Free Worlds missions which state that they carry cargo now actually have the cargo you're told they have. (@bene-dictator)
 	  * Changed the attitude of various Hai governments toward certain actions that the player takes to better reflect the story. (@Hurleveur)
 	    * You no longer gain reputation with the Hai for attacking or destroying Unfettered ships.
 	    * You no longer lose reputation with the Unfettered for disabling Unfettered ships.
@@ -158,7 +158,7 @@ Version 0.10.3
 	* Reordered the hardpoint definitions on various ships to match the expected style. (@warp-core)
 	* Updated a code comment to match the actual code below it. (@ashdnazg)
 	* Updated the project license field in the appdata file to list only the primary code license of the game instead of the licenses for all assets. (@salarua)
-	* The caching of Angles is now done when the game launches instead of the first time Angle is called. (@flowers9)
+	* The caching of Angles is now done when the game launches instead of the first time Angle::Unit is called. (@flowers9)
 	* Fixed incorrectly ordered includes in source files. (@tibetiroka)
 	* Created a new type of dialog that always runs its callback function regardless of the user's choice. (@flowers9)
 	* Added null pointer checks to functions in Politics. (@warp-core)
