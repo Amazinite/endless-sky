@@ -200,11 +200,11 @@ void ConditionSet::Load(const DataNode &node, const ConditionsStore *conditions)
 {
 	if(!conditions)
 		throw runtime_error("Unable to Load ConditionSet without a pointer to a ConditionsStore!");
+	this->conditions = conditions;
 
 	// The top-node is always an 'and' node, without the keyword.
 	expressionOperator = ExpressionOp::AND;
 	ParseBooleanChildren(node);
-	this->conditions = conditions;
 }
 
 
