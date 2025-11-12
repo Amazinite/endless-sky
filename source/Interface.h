@@ -42,7 +42,7 @@ public:
 
 	// Draw this interface. If the given panel is not null, also register any
 	// buttons in this interface with the panel's list of clickable zones.
-	void Draw(const Information &info, Panel *panel = nullptr) const;
+	void Draw(const Information &info, Panel *panel = nullptr, Point offset = Point()) const;
 
 	// Get the location of a named point or box.
 	bool HasPoint(const std::string &name) const;
@@ -89,7 +89,7 @@ private:
 
 		// Draw this element, relative to the given anchor point. If this is a
 		// button, it will add a clickable zone to the given panel.
-		void Draw(const Information &info, Panel *panel) const;
+		void Draw(const Information &info, Panel *panel, Point offset) const;
 
 		// Set the conditions that control when this element is visible and active.
 		// An empty string means it is always visible or active.
@@ -107,7 +107,7 @@ private:
 		// Report the actual dimensions of the object that will be drawn.
 		virtual Point NativeDimensions(const Information &info, int state) const;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const;
 		// Add any click handlers needed for this element. This will only be
 		// called if the element is visible and active.
 		virtual void Place(const Rectangle &bounds, Panel *panel) const;
@@ -133,7 +133,7 @@ private:
 		// Report the actual dimensions of the object that will be drawn.
 		virtual Point NativeDimensions(const Information &info, int state) const override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 
 	private:
 		const Sprite *GetSprite(const Information &info, int state) const;
@@ -188,7 +188,7 @@ private:
 		// Report the actual dimensions of the object that will be drawn.
 		virtual Point NativeDimensions(const Information &info, int state) const override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 	};
 
 	// This class handles "wrapped label", "wrapped string",
@@ -204,7 +204,7 @@ private:
 		// Report the actual dimensions of the object that will be drawn.
 		virtual Point NativeDimensions(const Information &info, int state) const override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 
 	private:
 		mutable WrappedText text;
@@ -221,7 +221,7 @@ private:
 		// itself. This returns false if it does not recognize the line, either.
 		virtual bool ParseLine(const DataNode &node) override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 
 	private:
 		std::string name;
@@ -245,7 +245,7 @@ private:
 		// itself. This returns false if it does not recognize the line, either.
 		virtual bool ParseLine(const DataNode &node) override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 
 	private:
 		const Color *color = nullptr;
@@ -263,10 +263,37 @@ private:
 		// itself. This returns false if it does not recognize the line, either.
 		virtual bool ParseLine(const DataNode &node) override;
 		// Draw this element in the given rectangle.
-		virtual void Draw(const Rectangle &rect, const Information &info, int state) const override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
 
 	private:
 		const Color *color = nullptr;
+	};
+
+	class BorderElement : public Element {
+	public:
+		BorderElement(const DataNode &node, const Point &globalAnchor);
+
+	protected:
+		virtual bool ParseLine(const DataNode &node) override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
+
+	private:
+		const Color *fromColor = nullptr;
+		const Color *toColor = nullptr;
+		float width = 2.f;
+	};
+
+	class NestedInterface : public Element {
+	public:
+		NestedInterface(const DataNode &node, const Point &globalAnchor);
+
+	protected:
+		virtual bool ParseLine(const DataNode &node) override;
+		virtual void Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const override;
+
+	private:
+		const Interface *interface = nullptr;
+		Point offset;
 	};
 
 

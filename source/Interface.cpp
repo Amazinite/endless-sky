@@ -112,6 +112,8 @@ void Interface::Load(const DataNode &node)
 			else
 				str.clear();
 		}
+		else if(key == "interface" && hasValue)
+			elements.push_back(make_unique<NestedInterface>(child, anchor));
 		else
 		{
 			// Check if this node specifies a known element type.
@@ -132,6 +134,8 @@ void Interface::Load(const DataNode &node)
 					child.PrintTrace("\"line\" is deprecated, use \"fill\" instead:");
 				elements.push_back(make_unique<FillElement>(child, anchor));
 			}
+			else if(key == "border")
+				elements.push_back(make_unique<BorderElement>(child, anchor));
 			else
 			{
 				child.PrintTrace("Skipping unrecognized element:");
@@ -147,10 +151,10 @@ void Interface::Load(const DataNode &node)
 
 
 // Draw this interface.
-void Interface::Draw(const Information &info, Panel *panel) const
+void Interface::Draw(const Information &info, Panel *panel, Point offset) const
 {
 	for(const unique_ptr<Element> &element : elements)
-		element->Draw(info, panel);
+		element->Draw(info, panel, offset);
 }
 
 
@@ -332,7 +336,7 @@ void Interface::Element::Load(const DataNode &node, const Point &globalAnchor)
 
 // Draw this element, relative to the given anchor point. If this is a
 // button, it will add a clickable zone to the given panel.
-void Interface::Element::Draw(const Information &info, Panel *panel) const
+void Interface::Element::Draw(const Information &info, Panel *panel, Point offset) const
 {
 	if(!info.HasCondition(visibleIf))
 		return;
@@ -351,9 +355,9 @@ void Interface::Element::Draw(const Information &info, Panel *panel) const
 	// Figure out how the element should be aligned within its bounding box.
 	Point nativeDimensions = NativeDimensions(info, state);
 	Point slack = .5 * (box.Dimensions() - nativeDimensions) - padding;
-	Rectangle rect(box.Center() + alignment * slack, nativeDimensions);
+	Rectangle rect(box.Center() + (alignment + offset) * slack, nativeDimensions);
 
-	Draw(rect, info, state);
+	Draw(rect, info, state, panel);
 }
 
 
@@ -401,7 +405,7 @@ Point Interface::Element::NativeDimensions(const Information &info, int state) c
 
 
 // Draw this element in the given rectangle.
-void Interface::Element::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::Element::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 }
 
@@ -492,7 +496,7 @@ Point Interface::ImageElement::NativeDimensions(const Information &info, int sta
 
 
 // Draw this element in the given rectangle.
-void Interface::ImageElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::ImageElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	const Sprite *sprite = GetSprite(info, state);
 	if(!sprite || !sprite->Width() || !sprite->Height())
@@ -650,7 +654,7 @@ Point Interface::BasicTextElement::NativeDimensions(const Information &info, int
 
 
 // Draw this element in the given rectangle.
-void Interface::BasicTextElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::BasicTextElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	// Avoid crashes for malformed interface elements that are not fully loaded.
 	if(!color[state])
@@ -720,7 +724,7 @@ Point Interface::WrappedTextElement::NativeDimensions(const Information &info, i
 
 
 // Draw this element in the given rectangle.
-void Interface::WrappedTextElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::WrappedTextElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	// The text has already been wrapped in NativeDimensions called by Element::Draw.
 	text.Draw(rect.TopLeft(), *color[state]);
@@ -778,7 +782,7 @@ bool Interface::BarElement::ParseLine(const DataNode &node)
 
 
 // Draw this element in the given rectangle.
-void Interface::BarElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::BarElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	// Get the current settings for this bar or ring.
 	double value = info.BarValue(name);
@@ -794,7 +798,6 @@ void Interface::BarElement::Draw(const Rectangle &rect, const Information &info,
 	{
 		if(!rect.Width() || !rect.Height())
 			return;
-
 
 		double fraction = value * spanAngle / 360.;
 		RingShader::Draw(rect.Center(), .5 * rect.Width(), width, fraction, *fromColor, segments, startAngle);
@@ -884,7 +887,7 @@ bool Interface::PointerElement::ParseLine(const DataNode &node)
 
 
 
-void Interface::PointerElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::PointerElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	const Point center = rect.Center();
 	const float width = rect.Width();
@@ -924,10 +927,92 @@ bool Interface::FillElement::ParseLine(const DataNode &node)
 
 
 // Draw this element in the given rectangle.
-void Interface::FillElement::Draw(const Rectangle &rect, const Information &info, int state) const
+void Interface::FillElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
 {
 	// Avoid crashes for malformed interface elements that are not fully loaded.
 	if(!from.Get() && !to.Get())
 		return;
 	FillShader::Fill(rect, *color);
+}
+
+
+
+// Members of the BorderElement class:
+
+// Constructor.
+Interface::BorderElement::BorderElement(const DataNode &node, const Point &globalAnchor)
+{
+	if(node.Size() < 2)
+		return;
+
+	// This function will call ParseLine() for any line it does not recognize.
+	Load(node, globalAnchor);
+
+	// Fill in a default color if none is specified.
+	if(!fromColor)
+		fromColor = toColor = GameData::Colors().Get("active");
+}
+
+
+
+bool Interface::BorderElement::ParseLine(const DataNode &node)
+{
+	const string &key = node.Token(0);
+	bool hasValue = node.Size() >= 2;
+	if(key == "color" && hasValue)
+	{
+		fromColor = GameData::Colors().Get(node.Token(1));
+		toColor = node.Size() >= 3 ? GameData::Colors().Get(node.Token(2)) : fromColor;
+	}
+	else if(key == "size" && hasValue)
+		width = node.Value(1);
+	else
+		return false;
+
+	return true;
+}
+
+
+
+// Draw this element in the given rectangle.
+void Interface::BorderElement::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
+{
+	if(!fromColor || !toColor || !width)
+		return;
+
+	LineShader::DrawGradient(rect.TopLeft(), rect.BottomRight(), width, *fromColor, *toColor, false);
+}
+
+
+
+// Members of the NestedInterface class:
+
+// Constructor.
+Interface::NestedInterface::NestedInterface(const DataNode &node, const Point &globalAnchor)
+{
+	interface = GameData::Interfaces().Get(node.Token(0));
+	offset = globalAnchor;
+
+	for(const DataNode &child : node)
+	{
+		const string &key = child.Token(0);
+		if(key == "offset" && node.Size() >= 3)
+			offset += Point(node.Value(1), node.Value(2));
+		else
+			child.PrintTrace("Skipping unrecognized attribute:");
+	}
+}
+
+
+
+bool Interface::NestedInterface::ParseLine(const DataNode &node)
+{
+	return false;
+}
+
+
+
+void Interface::NestedInterface::Draw(const Rectangle &rect, const Information &info, int state, Panel *panel) const
+{
+	interface->Draw(info, panel, rect.Center() + offset);
 }

@@ -218,6 +218,40 @@ color "wormholes: beyond Patir" .19 .27 .69
 color "plugin reload required" .75 .1 .1 0.
 
 
+color "primary ui" .125 .125 .125 1.
+color "light border" .753 .753 .753 1.
+color "dark border" .255 .255 .255 1.
+
+interface "wide button"
+	fill
+		from 10 10 to 100 40
+		color "primary ui"
+	border
+		from 10 10
+		dimensions 90 0
+		color "dark border" "light border"
+		size 1
+	border
+		from 10 10
+		dimensions 0 30
+		color "dark border" "light border"
+		size 1
+	border
+		from 100 10
+		dimensions 0 30
+		color "light border" "dark border"
+		size 1
+	border
+		from 10 40
+		dimensions 90 0
+		color "light border" "dark border"
+		size 1
+	border
+		from -53.5 425
+		dimensions 0 -192
+		color "fuel"
+		size 2
+
 
 interface "map detail panel"
 	value "min planet panel height" 195
@@ -296,6 +330,8 @@ interface "main menu"
 	button p "_Preferences..."
 		center -420 155
 		dimensions 120 30
+	
+	interface "wide button"
 
 
 
