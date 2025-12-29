@@ -306,6 +306,7 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 	int frameRate = 60;
 	FrameTimer timer(frameRate);
 	bool isDebugPaused = false;
+	bool debugAdvanceFrame = false;
 	bool isFastForward = false;
 
 	// Limit how quickly full-screen mode can be toggled.
@@ -319,7 +320,7 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 	const bool isHeadless = (testContext.CurrentTest() && !debugMode);
 
 	auto ProcessEvents = [&menuPanels, &gamePanels, &player, &cursorTime, &toggleTimeout, &debugMode, &isDebugPaused,
-			&isFastForward]
+			&debugAdvanceFrame, &isFastForward]
 	{
 		SDL_Event event;
 		while(SDL_PollEvent(&event))
@@ -337,6 +338,11 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 					Audio::Pause();
 				else
 					Audio::Resume();
+			}
+			else if(isDebugPaused && event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_PERIOD)
+			{
+				debugAdvanceFrame = true;
+				Logger::Log("Advancing by one frame.", Logger::Level::INFO);
 			}
 			else if(event.type == SDL_KEYDOWN && menuPanels.IsEmpty()
 					&& Command(event.key.keysym.sym).Has(Command::MENU)
@@ -430,7 +436,8 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 				isFastForward = false;
 
 			// Tell all the panels to step forward, then draw them.
-			((!isDebugPaused && menuPanels.IsEmpty()) ? gamePanels : menuPanels).StepAll();
+			(((!isDebugPaused || debugAdvanceFrame) && menuPanels.IsEmpty()) ? gamePanels : menuPanels).StepAll();
+			debugAdvanceFrame = false;
 
 			// Caps lock slows the frame rate in debug mode.
 			// Slowing eases in and out over a couple of frames.
