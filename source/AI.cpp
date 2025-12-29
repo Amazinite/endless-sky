@@ -18,6 +18,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "audio/Audio.h"
 #include "Command.h"
 #include "ConditionsStore.h"
+#include "DataWriter.h"
 #include "DistanceMap.h"
 #include "FighterHitHelper.h"
 #include "Flotsam.h"
@@ -44,6 +45,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "ship/ShipAICache.h"
 #include "ShipEvent.h"
 #include "ShipJumpNavigation.h"
+#include "image/Sprite.h"
 #include "StellarObject.h"
 #include "System.h"
 #include "UI.h"
@@ -1255,6 +1257,127 @@ int64_t AI::EnemyStrength(const Government *government) const
 {
 	auto it = enemyStrength.find(government);
 	return (it == enemyStrength.end() ? 0 : it->second);
+}
+
+
+
+void AI::LogDebugInfo(DataWriter &log, const shared_ptr<Ship> &target) const
+{
+	auto LogGovernment = [](const Government *gov) -> string {
+		if(!gov)
+			return "None";
+		return gov->TrueName();
+	};
+	auto LogShip = [&LogGovernment](const Ship *ship) -> string {
+		if(!ship)
+			return "None";
+		return ship->GivenName() + " (" + ship->TrueModelName() + ") >" + LogGovernment(ship->GetGovernment()) + "<" ;
+	};
+	auto LogSystem = [](const System *system) -> string {
+		if(!system)
+			return "None";
+		return system->TrueName();
+	};
+	auto LogStellarObject = [](const StellarObject *obj) -> string {
+		if(!obj)
+			return "None";
+		if(obj->GetPlanet())
+			return obj->GetPlanet()->TrueName();
+		if(obj->GetSprite())
+			return "Unnamed " + obj->GetSprite()->Name();
+		return "Unnamed object with no sprite";
+	};
+	auto LogAsteroid = [](const shared_ptr<Minable> &asteroid) -> string {
+		if(!asteroid)
+			return "None";
+		return asteroid->TrueName();
+	};
+	auto LogFlotsam = [](const shared_ptr<Flotsam> &flotsam) -> string {
+		if(!flotsam)
+			return "None";
+		int count = flotsam->Count();
+		double mass = flotsam->Mass();
+		if(flotsam->OutfitType())
+			return to_string(count) + " " + flotsam->OutfitType()->TrueName();
+		return to_string(mass) + " tons of " + flotsam->CommodityType();
+	};
+
+	log.Write("AI::LogDebugInfo");
+	log.BeginChild();
+	{
+		log.Write("current orders");
+		log.BeginChild();
+		for(const auto &[ship, escortOrders] : orders)
+		{
+			if(!ship)
+				return;
+			log.Write(LogShip(ship));
+			log.BeginChild();
+			{
+				if(escortOrders.Empty())
+					log.Write("None");
+				else
+				{
+					map<Orders::Types, string> orderTypes = {
+						{Orders::Types::HOLD_POSITION, "hold position"},
+						{Orders::Types::HOLD_ACTIVE, "hold active"},
+						{Orders::Types::MOVE_TO, "move to"},
+						{Orders::Types::KEEP_STATION, "keep station"},
+						{Orders::Types::GATHER, "gather"},
+						{Orders::Types::ATTACK, "attack"},
+						{Orders::Types::FINISH_OFF, "finish off"},
+						{Orders::Types::HOLD_FIRE, "hold fire"},
+						{Orders::Types::MINE, "mine"},
+						{Orders::Types::HARVEST, "harvest"},
+					};
+					log.Write("order types");
+					log.BeginChild();
+					for(const auto &[type, name] : orderTypes)
+					{
+						if(escortOrders.Has(type))
+							log.Write(name);
+					}
+					log.EndChild();
+					log.Write("target system", LogSystem(escortOrders.GetTargetSystem()));
+					log.Write("target ship", LogShip(escortOrders.GetTargetShip().get()));
+					log.Write("target asteroid", LogAsteroid(escortOrders.GetTargetAsteroid()));
+					if(escortOrders.GetTargetPoint())
+						log.Write("target point", escortOrders.GetTargetPoint().X(), escortOrders.GetTargetPoint().Y());
+					else
+						log.Write("target point", "None");
+				}
+			}
+			log.EndChild();
+		}
+		log.EndChild();
+
+		if(!target)
+			return;
+		log.Write("targeted ship info");
+		log.BeginChild();
+		{
+			log.Write("name", target->GivenName());
+			log.Write("model", target->TrueModelName());
+			log.Write("variant", target->VariantName());
+			log.Write("government", LogGovernment(target->GetGovernment()));
+			log.Write("is yours", target->IsYours());
+			log.Write("is special", target->IsSpecial());
+			target->GetPersonality().Save(log);
+			log.Write("parent", LogShip(target->GetParent().get()));
+			log.Write("# of escorts", target->GetEscorts().size());
+			log.BeginChild();
+			for(const weak_ptr<Ship> &ptr : target->GetEscorts())
+				log.Write(LogShip(ptr.lock().get()));
+			log.EndChild();
+			log.Write("target system", LogSystem(target->GetTargetSystem()));
+			log.Write("target stellar object", LogStellarObject(target->GetTargetStellar()));
+			log.Write("target ship", LogShip(target->GetTargetShip().get()));
+			log.Write("target asteroid", LogAsteroid(target->GetTargetAsteroid()));
+			log.Write("target flotsam", LogFlotsam(target->GetTargetFlotsam()));
+		}
+		log.EndChild();
+	}
+	log.EndChild();
 }
 
 

@@ -307,6 +307,7 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 	FrameTimer timer(frameRate);
 	bool isDebugPaused = false;
 	bool debugAdvanceFrame = false;
+	bool logDebugInfo = false;
 	bool isFastForward = false;
 
 	// Limit how quickly full-screen mode can be toggled.
@@ -320,7 +321,7 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 	const bool isHeadless = (testContext.CurrentTest() && !debugMode);
 
 	auto ProcessEvents = [&menuPanels, &gamePanels, &player, &cursorTime, &toggleTimeout, &debugMode, &isDebugPaused,
-			&debugAdvanceFrame, &isFastForward]
+			&debugAdvanceFrame, &logDebugInfo, &isFastForward]
 	{
 		SDL_Event event;
 		while(SDL_PollEvent(&event))
@@ -344,6 +345,8 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 				debugAdvanceFrame = true;
 				Logger::Log("Advancing by one frame.", Logger::Level::INFO);
 			}
+			else if(debugMode && event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SLASH)
+				logDebugInfo = true;
 			else if(event.type == SDL_KEYDOWN && menuPanels.IsEmpty()
 					&& Command(event.key.keysym.sym).Has(Command::MENU)
 					&& !gamePanels.IsEmpty() && gamePanels.Top()->IsInterruptible())
@@ -479,6 +482,21 @@ void GameLoop(PlayerInfo &player, TaskQueue &queue, const Conversation &conversa
 				SpriteShader::Draw(SpriteSet::Get("ui/paused"), Screen::TopLeft() + Point(10., 10.));
 			else if(isFastForward)
 				SpriteShader::Draw(SpriteSet::Get("ui/fast forward"), Screen::TopLeft() + Point(10., 10.));
+			if(mainPanel && logDebugInfo)
+			{
+				DataWriter log;
+				log.Write("debug", "logging");
+				log.Write("main::GameLoop");
+				log.BeginChild();
+				{
+					log.Write("debug pasued", isDebugPaused);
+					log.Write("fast forward enabled", isFastForward);
+					mainPanel->GetEngine().LogDebugInfo(log);
+				}
+				log.EndChild();
+				Logger::Log(log.SaveToString(), Logger::Level::INFO);
+				logDebugInfo = false;
+			}
 
 			gpuLoadSum += chrono::steady_clock::now() - drawStart;
 

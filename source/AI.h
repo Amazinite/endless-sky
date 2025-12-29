@@ -36,6 +36,7 @@ class Angle;
 class AsteroidField;
 class Body;
 class ConditionsStore;
+class DataWriter;
 class Flotsam;
 class Government;
 class Minable;
@@ -89,6 +90,9 @@ public:
 	// Get the in-system strength of each government's allies and enemies.
 	int64_t AllyStrength(const Government *government) const;
 	int64_t EnemyStrength(const Government *government) const;
+
+	// Log information about the current state.
+	void LogDebugInfo(DataWriter &log, const std::shared_ptr<Ship> &target) const;
 
 	// Find nearest landing location.
 	static const StellarObject *FindLandingLocation(const Ship &ship, const bool refuel = true);

@@ -44,6 +44,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+class DataWriter;
 class Flotsam;
 class Government;
 class NPC;
@@ -103,6 +104,9 @@ public:
 	// government; gov projectiles stop targeting the player and player's
 	// projectiles stop targeting gov.
 	void BreakTargeting(const Government *gov);
+
+	// Log information about the current state.
+	void LogDebugInfo(DataWriter &log) const;
 
 
 private:

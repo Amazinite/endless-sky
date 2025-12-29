@@ -24,6 +24,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "CoreStartData.h"
 #include "DamageDealt.h"
 #include "DamageProfile.h"
+#include "DataWriter.h"
 #include "Effect.h"
 #include "FighterHitHelper.h"
 #include "shader/FillShader.h"
@@ -1419,6 +1420,28 @@ void Engine::BreakTargeting(const Government *gov)
 			|| (projectileGov == gov && targetGov == playerGov))
 			projectile.BreakTarget();
 	}
+}
+
+
+
+void Engine::LogDebugInfo(DataWriter &log) const
+{
+	log.Write("Engine::LogDebugInfo");
+	log.BeginChild();
+	{
+		log.Write("camera position", camera.Center().X(), camera.Center().Y());
+		log.Write("# of ships", ships.size());
+		log.Write("# of ships with collisions", shipCollisions.All().size());
+		log.Write("# of minables", asteroids.Minables().size());
+		log.Write("# of projectiles", projectiles.size());
+		log.Write("# of flotsam", flotsam.size());
+		log.Write("# of visuals", visuals.size());
+		log.Write("# of active hazards", activeWeather.size());
+
+		const Ship *flagship = player.Flagship();
+		ai.LogDebugInfo(log, flagship ? flagship->GetTargetShip() : nullptr);
+	}
+	log.EndChild();
 }
 
 
