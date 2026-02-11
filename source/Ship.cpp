@@ -222,14 +222,16 @@ namespace {
 
 
 // Construct and Load() at the same time.
-Ship::Ship(const DataNode &node, const ConditionsStore *playerConditions)
+Ship::Ship(const DataNode &node, const ConditionsStore *playerConditions,
+		const set<const System *> *visitedSystems, const set<const Planet *> *visitedPlanets)
 {
-	Load(node, playerConditions);
+	Load(node, playerConditions, visitedSystems, visitedPlanets);
 }
 
 
 
-void Ship::Load(const DataNode &node, const ConditionsStore *playerConditions)
+void Ship::Load(const DataNode &node, const ConditionsStore *playerConditions,
+		const set<const System *> *visitedSystems, const set<const Planet *> *visitedPlanets)
 {
 	if(node.Size() >= 2)
 		trueModelName = node.Token(1);
@@ -284,11 +286,11 @@ void Ship::Load(const DataNode &node, const ConditionsStore *playerConditions)
 		else if(key == "attributes" || add)
 		{
 			if(!add)
-				baseAttributes.Load(child, playerConditions);
+				baseAttributes.Load(child, playerConditions, visitedSystems, visitedPlanets);
 			else
 			{
 				addAttributes = true;
-				attributes.Load(child, playerConditions);
+				attributes.Load(child, playerConditions, visitedSystems, visitedPlanets);
 			}
 		}
 		else if((key == "engine" || key == "reverse engine" || key == "steering engine") && child.Size() >= 3)
@@ -747,6 +749,13 @@ void Ship::FinishLoading(bool isNewInstance)
 	baseAttributes.Set("gun ports", armament.GunCount());
 	baseAttributes.Set("turret mounts", armament.TurretCount());
 
+	for(const OutfitGenerator &generator : baseAttributes.OutfitGenerators())
+	{
+		if(!generator.GetOutfit()->IsDefined())
+			continue;
+		outfitGenerators[generator.GetTrigger()].emplace_back(&baseAttributes, &generator);
+	}
+
 	if(addAttributes)
 	{
 		// Store attributes from an "add attributes" node in the ship's
@@ -758,30 +767,36 @@ void Ship::FinishLoading(bool isNewInstance)
 	// Add the attributes of all your outfits to the ship's base attributes.
 	attributes = baseAttributes;
 	vector<string> undefinedOutfits;
-	for(const auto &it : outfits)
+	for(const auto &[outfit, count] : outfits)
 	{
-		if(!it.first->IsDefined())
+		if(!outfit->IsDefined())
 		{
-			undefinedOutfits.emplace_back("\"" + it.first->TrueName() + "\"");
+			undefinedOutfits.emplace_back("\"" + outfit->TrueName() + "\"");
 			continue;
 		}
-		attributes.Add(*it.first, it.second);
+		attributes.Add(*outfit, count);
+		for(const OutfitGenerator &generator : outfit->OutfitGenerators())
+		{
+			if(!generator.GetOutfit()->IsDefined())
+				continue;
+			outfitGenerators[generator.GetTrigger()].emplace_back(outfit, &generator);
+		}
 		// Some ship variant definitions do not specify which weapons
 		// are placed in which hardpoint. Add any weapons that are not
 		// yet installed to the ship's armament.
-		if(it.first->GetWeapon())
+		if(outfit->GetWeapon())
 		{
-			int count = it.second;
-			auto eit = equipped.find(it.first);
+			int remaining = count;
+			auto eit = equipped.find(outfit);
 			if(eit != equipped.end())
-				count -= eit->second;
+				remaining -= eit->second;
 
-			if(count)
+			if(remaining)
 			{
-				count -= armament.Add(it.first, count);
-				if(count)
+				remaining -= armament.Add(outfit, remaining);
+				if(remaining)
 					LogWarning(VariantName(), GivenName(),
-						"weapon \"" + it.first->TrueName() + "\" installed, but insufficient slots to use it.");
+						"weapon \"" + outfit->TrueName() + "\" installed, but insufficient slots to use it.");
 			}
 		}
 	}
@@ -2234,6 +2249,43 @@ Point Ship::FireTractorBeam(const Flotsam &flotsam, vector<Visual> &visuals)
 
 
 
+void Ship::RunOutfitGenerators(OutfitGenerator::Trigger trigger, PlayerInfo *player)
+{
+	auto it = outfitGenerators.find(trigger);
+	if(it == outfitGenerators.end())
+		return;
+	if(!IsYours())
+		player = nullptr;
+	const Planet *playerPlanet = player ? player->GetPlanet() : nullptr;
+	CargoHold &useCargo = playerPlanet && playerPlanet == GetPlanet() ? player->Cargo() : cargo;
+	for(GeneratorTracker &tracker : it->second)
+	{
+		if(trigger == OutfitGenerator::Trigger::TIMER)
+		{
+			if(--tracker.tick > 0)
+				continue;
+			tracker.tick = tracker.generator->TimerTicks();
+		}
+		for(int i = 0; i < OutfitCount(tracker.outfit); ++i)
+			if(!tracker.generator->Generate(*this, useCargo, player))
+				break;
+	}
+}
+
+
+
+set<const Outfit *> Ship::OutfitGeneratorStock() const
+{
+	set<const Outfit *> stock;
+	for(const auto &trackers : outfitGenerators)
+		for(const GeneratorTracker &tracker : trackers.second)
+			if(tracker.generator->StocksOutfitter())
+				stock.insert(tracker.outfit);
+	return stock;
+}
+
+
+
 const System *Ship::GetSystem() const
 {
 	return currentSystem;
@@ -2909,6 +2961,29 @@ double Ship::HullUntilDisabled() const
 
 
 
+ResourceLevels Ship::AvailableResources() const
+{
+	ResourceLevels levels;
+	// A ship should not be able to disable itself through use of an outfit, so
+	// the available hull excludes the hull necessary to remain enabled.
+	levels.hull = hull - MinimumHull();
+	levels.shields = shields;
+	levels.energy = energy;
+	levels.heat = heat;
+	levels.fuel = fuel;
+	levels.ionization = ionization;
+	levels.scrambling = scrambling;
+	levels.disruption = disruption;
+	levels.slowness = slowness;
+	levels.discharge = discharge;
+	levels.corrosion = corrosion;
+	levels.leakage = leakage;
+	levels.burning = burning;
+	return levels;
+}
+
+
+
 // Returns the remaining damage timer, for the damage overlay.
 int Ship::DamageOverlayTimer() const
 {
@@ -3258,77 +3333,25 @@ int Ship::TakeDamage(vector<Visual> &visuals, const DamageDealt &damage, const G
 	// source government).
 	if(sourceGovernment)
 		lastHitBy = sourceGovernment;
-	damageOverlayTimer = TOTAL_DAMAGE_FRAMES;
 
-	bool wasDisabled = IsDisabled();
-	bool wasDestroyed = IsDestroyed();
-
-	shields -= damage.Shield();
-	if(damage.Shield() && !isDisabled)
-	{
-		int disabledDelay = attributes.Get("depleted shield delay");
-		shieldDelay = max<int>(shieldDelay, (shields <= 0. && disabledDelay)
-			? disabledDelay : attributes.Get("shield delay"));
-	}
-	hull -= damage.Hull();
-	if(damage.Hull() && !isDisabled)
-		hullDelay = max(hullDelay, static_cast<int>(attributes.Get("repair delay")));
-
-	energy -= damage.Energy();
-	heat += damage.Heat();
-	fuel -= damage.Fuel();
-
-	discharge += damage.Discharge();
-	corrosion += damage.Corrosion();
-	ionization += damage.Ion();
-	scrambling += damage.Scrambling();
-	burning += damage.Burn();
-	leakage += damage.Leak();
-
-	disruption += damage.Disruption();
-	slowness += damage.Slowing();
+	ResourceLevels levels;
+	levels.shields = damage.Shield();
+	levels.hull = damage.Hull();
+	levels.energy = damage.Energy();
+	levels.fuel = damage.Fuel();
+	levels.heat = damage.Heat();
+	levels.discharge = damage.Discharge();
+	levels.corrosion = damage.Corrosion();
+	levels.ionization = damage.Ion();
+	levels.leakage = damage.Leak();
+	levels.burning = damage.Burn();
+	levels.scrambling = damage.Scrambling();
+	levels.disruption = damage.Disruption();
+	levels.slowness = damage.Slowing();
+	int type = TakeDamageInternal(levels);
 
 	if(damage.HitForce())
 		ApplyForce(damage.HitForce(), damage.GetWeapon().IsGravitational());
-
-	// Prevent various stats from reaching unallowable values.
-	hull = min(hull, MaxHull());
-	shields = min(shields, MaxShields());
-	// Weapons are allowed to overcharge a ship's energy or fuel, but code in Ship::DoGeneration()
-	// will clamp it to a maximum value at the beginning of the next frame.
-	energy = max(0., energy);
-	fuel = max(0., fuel);
-	heat = max(0., heat);
-
-	// Recalculate the disabled ship check.
-	isDisabled = true;
-	isDisabled = IsDisabled();
-
-	// Report what happened to this ship from this weapon.
-	int type = 0;
-	if(!wasDisabled && isDisabled)
-	{
-		type |= ShipEvent::DISABLE;
-		hullDelay = max(hullDelay, static_cast<int>(attributes.Get("disabled repair delay")));
-	}
-	if(!wasDestroyed && IsDestroyed())
-	{
-		type |= ShipEvent::DESTROY;
-
-		if(IsYours())
-			Messages::Add({"Your " + DisplayModelName()
-				+ " \"" + GivenName() + "\" has been destroyed.",
-				GameData::MessageCategories().Get("high duplicating")});
-	}
-
-	// Inflicted heat damage may also disable a ship, but does not trigger a "DISABLE" event by itself.
-	if(heat > MaximumHeat())
-	{
-		isOverheated = true;
-		isDisabled = true;
-	}
-	else if(heat < .9 * MaximumHeat())
-		isOverheated = false;
 
 	// If this ship did not consider itself an enemy of the ship that hit it,
 	// it is now "provoked" against that government.
@@ -3349,6 +3372,15 @@ int Ship::TakeDamage(vector<Visual> &visuals, const DamageDealt &damage, const G
 		CreateSparks(visuals, effect.first, effect.second * damage.Scaling());
 
 	return type;
+}
+
+
+
+void Ship::TakeDamage(const ResourceLevels &damage)
+{
+	int type = TakeDamageInternal(damage);
+	if(type)
+		unhandledEvents.emplace_back(nullptr, shared_from_this(), type);
 }
 
 
@@ -3648,6 +3680,32 @@ void Ship::AddOutfit(const Outfit *outfit, int count)
 		}
 		int after = outfits.count(outfit);
 		attributes.Add(*outfit, count);
+		if(!outfit->OutfitGenerators().empty())
+		{
+			if(!before && after)
+				for(const OutfitGenerator &generator : outfit->OutfitGenerators())
+				{
+					if(!generator.GetOutfit()->IsDefined())
+						continue;
+					outfitGenerators[generator.GetTrigger()].emplace_back(outfit, &generator);
+				}
+			else if(before && !after)
+				for(auto oit = outfitGenerators.begin(); oit != outfitGenerators.end(); )
+				{
+					vector<GeneratorTracker> &trackers = oit->second;
+					for(auto sit = trackers.begin(); sit != trackers.end(); )
+					{
+						if(sit->outfit == outfit)
+							sit = trackers.erase(sit);
+						else
+							++sit;
+					}
+					if(trackers.empty())
+						oit = outfitGenerators.erase(oit);
+					else
+						++oit;
+				}
+		}
 		if(outfit->GetWeapon())
 		{
 			armament.Add(outfit, count);
@@ -5368,4 +5426,80 @@ void Ship::Jettison(shared_ptr<Flotsam> toJettison)
 		}
 		++bayIndex;
 	}
+}
+
+
+
+int Ship::TakeDamageInternal(const ResourceLevels &damage)
+{
+	damageOverlayTimer = TOTAL_DAMAGE_FRAMES;
+
+	bool wasDisabled = IsDisabled();
+	bool wasDestroyed = IsDestroyed();
+
+	shields -= damage.shields;
+	if(damage.shields && !isDisabled)
+	{
+		int disabledDelay = attributes.Get("depleted shield delay");
+		shieldDelay = max<int>(shieldDelay, (shields <= 0. && disabledDelay)
+			? disabledDelay : attributes.Get("shield delay"));
+	}
+	hull -= damage.hull;
+	if(damage.hull && !isDisabled)
+		hullDelay = max(hullDelay, static_cast<int>(attributes.Get("repair delay")));
+
+	energy -= damage.energy;
+	heat += damage.heat;
+	fuel -= damage.fuel;
+
+	discharge += damage.discharge;
+	corrosion += damage.corrosion;
+	ionization += damage.ionization;
+	scrambling += damage.scrambling;
+	burning += damage.burning;
+	leakage += damage.leakage;
+
+	disruption += damage.disruption;
+	slowness += damage.slowness;
+
+	// Prevent various stats from reaching unallowable values.
+	hull = min(hull, MaxHull());
+	shields = min(shields, MaxShields());
+	// Weapons are allowed to overcharge a ship's energy or fuel, but code in Ship::DoGeneration()
+	// will clamp it to a maximum value at the beginning of the next frame.
+	energy = max(0., energy);
+	fuel = max(0., fuel);
+	heat = max(0., heat);
+
+	// Recalculate the disabled ship check.
+	isDisabled = true;
+	isDisabled = IsDisabled();
+
+	// Report what happened to this ship from this weapon.
+	int type = 0;
+	if(!wasDisabled && isDisabled)
+	{
+		type |= ShipEvent::DISABLE;
+		hullDelay = max(hullDelay, static_cast<int>(attributes.Get("disabled repair delay")));
+	}
+	if(!wasDestroyed && IsDestroyed())
+	{
+		type |= ShipEvent::DESTROY;
+
+		if(IsYours())
+			Messages::Add({"Your " + DisplayModelName()
+				+ " \"" + GivenName() + "\" has been destroyed.",
+				GameData::MessageCategories().Get("high duplicating")});
+	}
+
+	// Inflicted heat damage may also disable a ship, but does not trigger a "DISABLE" event by itself.
+	if(heat > MaximumHeat())
+	{
+		isOverheated = true;
+		isDisabled = true;
+	}
+	else if(heat < .9 * MaximumHeat())
+		isOverheated = false;
+
+	return type;
 }

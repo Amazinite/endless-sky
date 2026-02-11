@@ -358,7 +358,7 @@ void PlayerInfo::Load(const filesystem::path &path)
 		else if(key == "ship")
 		{
 			// Ships owned by the player have various special characteristics:
-			ships.push_back(make_shared<Ship>(child, &conditions));
+			ships.push_back(make_shared<Ship>(child, &conditions, &visitedSystems, &visitedPlanets));
 			ships.back()->SetIsSpecial();
 			ships.back()->SetIsYours();
 			// Defer finalizing this ship until we have processed all changes to game state.

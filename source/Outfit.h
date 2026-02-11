@@ -16,6 +16,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include "Dictionary.h"
+#include "OutfitGenerator.h"
 #include "Paragraphs.h"
 
 #include <map>
@@ -28,10 +29,11 @@ class Body;
 class ConditionsStore;
 class DataNode;
 class Effect;
+class Planet;
 class Sound;
 class Sprite;
+class System;
 class Weapon;
-
 
 
 // Class representing an outfit that can be installed in a ship. A ship's
@@ -53,7 +55,8 @@ public:
 public:
 	// An "outfit" can be loaded from an "outfit" node or from a ship's
 	// "attributes" node.
-	void Load(const DataNode &node, const ConditionsStore *playerConditions);
+	void Load(const DataNode &node, const ConditionsStore *playerConditions,
+		const std::set<const System *> *visitedSystems, const std::set<const Planet *> *visitedPlanets);
 	bool IsDefined() const;
 
 	const std::string &TrueName() const;
@@ -116,6 +119,8 @@ public:
 	const std::map<const Sound *, int> &OutfitScanSounds() const;
 	// Get the sprite this outfit uses when dumped into space.
 	const Sprite *FlotsamSprite() const;
+	// Get the outfit generators, if any.
+	const std::vector<OutfitGenerator> &OutfitGenerators() const;
 
 
 private:
@@ -147,6 +152,7 @@ private:
 	// properly remove excess ammo when the storage is sold, instead
 	// of blocking the sale of the outfit until the ammo is sold first.
 	const Outfit *ammoStored = nullptr;
+	std::vector<OutfitGenerator> generators;
 
 	// The integers in these pairs/maps indicate the number of
 	// sprites/effects/sounds to be placed/played.

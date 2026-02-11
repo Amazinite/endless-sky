@@ -72,8 +72,9 @@ void Minable::Load(const DataNode &node, const ConditionsStore *playerConditions
 		const string &key = child.Token(0);
 		bool hasValue = child.Size() >= 2;
 
+		// TODO: Fix this later.
 		if(key == "attributes")
-			attributes.Load(child, playerConditions);
+			attributes.Load(child, playerConditions, nullptr, nullptr);
 		else if(!hasValue)
 			child.PrintTrace("Expected key to have a value:");
 		else if(key == "display name")

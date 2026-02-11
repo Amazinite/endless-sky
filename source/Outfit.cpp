@@ -210,7 +210,8 @@ namespace {
 
 
 
-void Outfit::Load(const DataNode &node, const ConditionsStore *playerConditions)
+void Outfit::Load(const DataNode &node, const ConditionsStore *playerConditions,
+	const set<const System *> *visitedSystems, const set<const Planet *> *visitedPlanets)
 {
 	if(node.Size() >= 2)
 		trueName = node.Token(1);
@@ -285,6 +286,8 @@ void Outfit::Load(const DataNode &node, const ConditionsStore *playerConditions)
 			newWeapon.Load(child);
 			weapon = make_shared<Weapon>(std::move(newWeapon));
 		}
+		else if(key == "generate" && hasValue)
+			generators.emplace_back(child, playerConditions, visitedSystems, visitedPlanets);
 		else if(key == "ammo" && hasValue)
 			ammoStored = GameData::Outfits().Get(child.Token(1));
 		else if(key == "description" && hasValue)
@@ -730,6 +733,13 @@ const map<const Sound *, int> &Outfit::OutfitScanSounds() const
 const Sprite *Outfit::FlotsamSprite() const
 {
 	return flotsamSprite;
+}
+
+
+
+const vector<OutfitGenerator> &Outfit::OutfitGenerators() const
+{
+	return generators;
 }
 
 

@@ -229,6 +229,8 @@ target_sources(EndlessSkyLib PRIVATE
 	OptionalInputDialogPanel.h
 	Outfit.cpp
 	Outfit.h
+	OutfitGenerator.cpp
+	OutfitGenerator.h
 	OutfitInfoDisplay.cpp
 	OutfitInfoDisplay.h
 	OutfitterPanel.cpp
@@ -436,6 +438,8 @@ target_sources(EndlessSkyLib PRIVATE
 	shader/SpriteShader.h
 	shader/StarField.cpp
 	shader/StarField.h
+	ship/ResourceLevels.cpp
+	ship/ResourceLevels.h
 	ship/ShipAICache.cpp
 	ship/ShipAICache.h
 	test/Test.cpp

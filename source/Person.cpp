@@ -46,7 +46,7 @@ void Person::Load(const DataNode &node, const ConditionsStore *playerConditions,
 			// Name ships that are not the flagship with the name provided, if any.
 			// The flagship, and any unnamed fleet members, will be given the name of the Person.
 			bool setName = !ships.empty() && child.Size() >= 3;
-			ships.emplace_back(make_shared<Ship>(child, playerConditions));
+			ships.emplace_back(make_shared<Ship>(child, playerConditions, visitedSystems, visitedPlanets));
 			if(setName)
 				ships.back()->SetGivenName(child.Token(2));
 		}

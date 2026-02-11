@@ -198,7 +198,7 @@ void NPC::Load(const DataNode &node, const ConditionsStore *playerConditions,
 			{
 				// Loading an NPC from a save file, or an entire ship specification.
 				// The latter may result in references to non-instantiated outfits.
-				ships.emplace_back(make_shared<Ship>(child, playerConditions));
+				ships.emplace_back(make_shared<Ship>(child, playerConditions, visitedSystems, visitedPlanets));
 				for(const DataNode &grand : child)
 					if(grand.Token(0) == "actions" && grand.Size() >= 2)
 						shipEvents[ships.back().get()] = grand.Value(1);

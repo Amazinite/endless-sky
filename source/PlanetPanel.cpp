@@ -131,6 +131,20 @@ void PlanetPanel::Step()
 			hasOutfitter = true;
 			outfitterStock.Add(shop->Stock());
 		}
+		for(const shared_ptr<Ship> &ship : player.Ships())
+		{
+			// Ships in the same system but on a different planet can still appear in the shops,
+			// so only skip over ships in a different system.
+			if(!ship || !ship->GetPlanet() || ship->GetSystem() != &system)
+				continue;
+			ship->RunOutfitGenerators(OutfitGenerator::Trigger::LANDING, &player);
+			if(hasOutfitter)
+			{
+				ship->RunOutfitGenerators(OutfitGenerator::Trigger::OUTFITTER, &player);
+				set<const Outfit *> stock = ship->OutfitGeneratorStock();
+				outfitterStock.insert(stock.begin(), stock.end());
+			}
+		}
 	}
 	// Load the thumbnails of all outfits and ships that the player could see while landed here
 	// if they haven't been loaded before or a mission action has just completed and we should

@@ -492,7 +492,7 @@ void UniverseObjects::LoadFile(const filesystem::path &path, const PlayerInfo &p
 			Outfit *outfit = outfits.Get(node.Token(1));
 			if(overwrite)
 				*outfit = Outfit();
-			outfit->Load(node, playerConditions);
+			outfit->Load(node, playerConditions, visitedSystems, visitedPlanets);
 		}
 		else if(key == "outfitter" && hasValue)
 		{
@@ -529,7 +529,7 @@ void UniverseObjects::LoadFile(const filesystem::path &path, const PlayerInfo &p
 			Ship *ship = ships.Get(name);
 			if(overwrite)
 				*ship = Ship();
-			ship->Load(node, playerConditions);
+			ship->Load(node, playerConditions, visitedSystems, visitedPlanets);
 		}
 		else if(key == "shipyard" && hasValue)
 		{

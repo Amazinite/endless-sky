@@ -514,6 +514,13 @@ void Engine::Step(bool isActive)
 			if(object.HasSprite())
 				SpriteLoadManager::LoadDeferred(asyncQueue, object.GetSprite());
 
+	// A system was just entered, so we need to run all daily outfit generators.
+	// This is done here instead of EnterSystem because Place calls EnterSystem
+	// before it has fully populated the ships list.
+	if(doEnterLabels)
+		for(const shared_ptr<Ship> &ship : ships)
+			ship->RunOutfitGenerators(OutfitGenerator::Trigger::DAILY, &player);
+
 	// The calculation thread was paused by MainPanel before calling this function, so it is safe to access things.
 	const shared_ptr<Ship> flagship = player.FlagshipPtr();
 	const StellarObject *object = player.GetStellarObject();
@@ -1911,6 +1918,8 @@ void Engine::CalculateUnpaused(const Ship *flagship, const System *playerSystem)
 // boarding events, fire weapons, and launch fighters.
 void Engine::MoveShip(const shared_ptr<Ship> &ship)
 {
+	// Run any outfit generators on this ship.
+	ship->RunOutfitGenerators(OutfitGenerator::Trigger::TIMER, &player);
 	// Various actions a ship could have taken last frame may have impacted the accuracy of cached values.
 	// Therefore, determine with any information needs recalculated and cache it.
 	ship->UpdateCaches();

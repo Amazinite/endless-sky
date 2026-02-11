@@ -24,10 +24,12 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "EsUuid.h"
 #include "FireCommand.h"
 #include "Outfit.h"
+#include "OutfitGenerator.h"
 #include "Paragraphs.h"
 #include "Personality.h"
 #include "Point.h"
 #include "Port.h"
+#include "ship/ResourceLevels.h"
 #include "ship/ShipAICache.h"
 #include "ShipEvent.h"
 #include "ShipJumpNavigation.h"
@@ -151,10 +153,12 @@ public:
 
 	Ship() = default;
 	// Construct and Load() at the same time.
-	Ship(const DataNode &node, const ConditionsStore *playerConditions);
+	Ship(const DataNode &node, const ConditionsStore *playerConditions,
+		const std::set<const System *> *visitedSystems, const std::set<const Planet *> *visitedPlanets);
 
 	// Load data for a type of ship:
-	void Load(const DataNode &node, const ConditionsStore *playerConditions);
+	void Load(const DataNode &node, const ConditionsStore *playerConditions,
+		const std::set<const System *> *visitedSystems, const std::set<const Planet *> *visitedPlanets);
 	// When loading a ship, some of the outfits it lists may not have been
 	// loaded yet. So, wait until everything has been loaded, then call this.
 	void FinishLoading(bool isNewInstance);
@@ -270,6 +274,9 @@ public:
 	// pull on the flotsam from this ship's tractor beams.
 	Point FireTractorBeam(const Flotsam &flotsam, std::vector<Visual> &visuals);
 
+	void RunOutfitGenerators(OutfitGenerator::Trigger trigger, PlayerInfo *player);
+	std::set<const Outfit *> OutfitGeneratorStock() const;
+
 	// Get the system this ship is in. Set to nullptr if the ship is being carried.
 	const System *GetSystem() const;
 	// Get the system this ship is in. If being carried, gets the parent's system.
@@ -378,6 +385,8 @@ public:
 	// ship becomes disabled. Returns 0 if the ships hull is already below the
 	// disabled threshold.
 	double HullUntilDisabled() const;
+	// The resources that this ship has available to expend on using an outfit.
+	ResourceLevels AvailableResources() const;
 	// Returns the remaining damage timer, for the damage overlay.
 	int DamageOverlayTimer() const;
 	// Get this ship's jump navigation, which contains information about how
@@ -444,6 +453,7 @@ public:
 	// which may be a combination of PROVOKED, DISABLED, and DESTROYED.
 	// Create any target effects as sparks.
 	int TakeDamage(std::vector<Visual> &visuals, const DamageDealt &damage, const Government *sourceGovernment);
+	void TakeDamage(const ResourceLevels &damage);
 	// Apply a force to this ship, accelerating it. This might be from a weapon
 	// impact, or from firing a weapon, for example.
 	void ApplyForce(const Point &force, bool gravitational = false);
@@ -553,6 +563,23 @@ public:
 
 
 private:
+	// A class for tracking outfit generators.
+	class GeneratorTracker {
+	public:
+		GeneratorTracker(const Outfit *outfit, const OutfitGenerator *generator)
+			: outfit(outfit), generator(generator), tick(generator->TimerTicks()) {}
+
+		// The outfit that this generator comes from.
+		const Outfit *outfit = nullptr;
+		// The individual generator itself.
+		const OutfitGenerator *generator = nullptr;
+		// For time-based outfit generators, the number of frames until
+		// it fires again.
+		int tick = 0;
+	};
+
+
+private:
 	// Various steps of Ship::Move:
 
 	// Check if this ship has been in a different system from the player for so
@@ -600,6 +627,8 @@ private:
 
 	// Helper function for jettisoning flotsam.
 	void Jettison(std::shared_ptr<Flotsam> toJettison);
+
+	int TakeDamageInternal(const ResourceLevels &damage);
 
 
 private:
@@ -678,6 +707,7 @@ private:
 	const Weapon *explosionWeapon = nullptr;
 	std::map<const Outfit *, int> outfits;
 	CargoHold cargo;
+	std::map<OutfitGenerator::Trigger, std::vector<GeneratorTracker>> outfitGenerators;
 	std::list<std::shared_ptr<Flotsam>> jettisoned;
 	std::list<std::pair<std::shared_ptr<Flotsam>, size_t>> jettisonedFromBay;
 
