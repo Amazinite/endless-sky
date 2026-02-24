@@ -18,6 +18,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Panel.h"
 
 #include "ClickZone.h"
+#include "LoadingCircle.h"
 #include "Mission.h"
 #include "OutfitInfoDisplay.h"
 #include "Point.h"
@@ -79,6 +80,7 @@ protected:
 	void DrawShip(const Ship &ship, const Point &center, bool isSelected);
 
 	void CheckForMissions(Mission::Location location) const;
+	void ValidateSelectedShips();
 
 	// These are for the individual shop panels to override.
 	virtual int TileSize() const = 0;
@@ -197,6 +199,7 @@ protected:
 	Tooltip shipsTooltip;
 	Tooltip creditsTooltip;
 	Tooltip buttonsTooltip;
+	LoadingCircle loadingCircle;
 
 
 private:

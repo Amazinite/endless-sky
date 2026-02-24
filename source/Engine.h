@@ -241,6 +241,7 @@ private:
 	AI ai;
 
 	TaskQueue queue;
+	TaskQueue asyncQueue;
 
 	// ES uses a technique called double buffering to calculate the next frame and render the current one simultaneously.
 	// To facilitate this, it uses two buffers for each list of things to draw - one for the next frame's calculations and
@@ -294,6 +295,7 @@ private:
 	CollisionSet shipCollisions;
 
 	int alarmTime = 0;
+	int nukeAlarmTime = 0;
 	double flash = 0.;
 	bool doFlash = false;
 	bool doEnterLabels = false;
