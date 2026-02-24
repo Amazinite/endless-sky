@@ -1237,6 +1237,36 @@ void Engine::Draw() const
 		PointerShader::Unbind();
 	}
 
+	Color color = Color(1., 0., 0.);
+	RingShader::Bind();
+	{
+		for(auto it = visualizeExplosions.begin(); it != visualizeExplosions.end(); )
+		{
+			Explosion &explosion = *it;
+			Color drawColor = color.Additive(.5 * (explosion.lifetime / 10.));
+			RingShader::Draw((explosion.position - camera.Center()) * zoom, explosion.radius, 0.f, drawColor);
+			if(--explosion.lifetime)
+				++it;
+			else
+				it = visualizeExplosions.erase(it);
+		}
+	}
+	RingShader::Unbind();
+
+	for(auto it = visualizeDamageTaken.begin(); it != visualizeDamageTaken.end(); )
+	{
+		TookDamage &tookDamage = *it;
+		Body *body = tookDamage.body;
+		Color drawColor = color.Additive(1. * (tookDamage.lifetime / 10.));
+		OutlineShader::Draw(body->GetSprite(), (body->Position() - camera.Center()) * zoom,
+			Point(body->GetSprite()->Width(), body->GetSprite()->Height()), drawColor, body->Unit() * zoom,
+			body->GetFrame());
+		if(--tookDamage.lifetime)
+			++it;
+		else
+			it = visualizeDamageTaken.erase(it);
+	}
+
 	if(flash)
 		FillShader::Fill(Point(), Screen::Dimensions(), Color(flash, flash));
 
@@ -2485,6 +2515,7 @@ void Engine::DoCollisions(Projectile &projectile)
 			// Even friendly ships can be hit by the blast, unless it is a
 			// "safe" weapon.
 			Point hitPos = projectile.Position() + range * projectile.Velocity();
+			visualizeExplosions.emplace_back(hitPos, blastRadius);
 			bool isSafe = weapon.IsSafe();
 			vector<Body *> blastCollisions;
 			blastCollisions.reserve(32);
@@ -2498,6 +2529,7 @@ void Engine::DoCollisions(Projectile &projectile)
 					continue;
 
 				// Only directly targeted ships get provoked by blast weapons.
+				visualizeDamageTaken.emplace_back(body);
 				int eventType = ship->TakeDamage(visuals, damage.CalculateDamage(*ship, ship == hit),
 					targeted ? gov : nullptr);
 				if(eventType)
@@ -2507,7 +2539,8 @@ void Engine::DoCollisions(Projectile &projectile)
 			asteroids.MinablesCollisionsCircle(hitPos, blastRadius, blastCollisions);
 			for(Body *body : blastCollisions)
 			{
-				auto minable = reinterpret_cast<Minable *>(body);
+				visualizeDamageTaken.emplace_back(body);
+				auto minable = static_cast<Minable *>(body);
 				minable->TakeDamage(damage.CalculateDamage(*minable));
 			}
 		}

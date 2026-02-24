@@ -330,4 +330,21 @@ private:
 	Zoom zoom;
 	// Tracks the next zoom change so that objects aren't drawn at different zooms in a single frame.
 	Zoom nextZoom;
+
+	struct Explosion {
+		Explosion(Point position, double radius) : position(position), radius(radius) {}
+
+		Point position;
+		double radius;
+		int lifetime = 10;
+	};
+	mutable std::vector<Explosion> visualizeExplosions;
+
+	struct TookDamage {
+		explicit TookDamage(Body *body) : body(body) {}
+
+		Body *body;
+		int lifetime = 10;
+	};
+	mutable std::vector<TookDamage> visualizeDamageTaken;
 };
