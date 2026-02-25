@@ -3700,12 +3700,8 @@ const vector<Hardpoint> &Ship::Weapons() const
 // Assume the weapon is valid.
 Ship::CanFireResult Ship::CanFire(const Weapon *weapon) const
 {
-	if(weapon->Ammo())
-	{
-		auto it = outfits.find(weapon->Ammo());
-		if(it == outfits.end() || it->second < weapon->AmmoUsage())
-			return CanFireResult::NO_AMMO;
-	}
+	if(!HasAmmoFor(weapon))
+		return CanFireResult::NO_AMMO;
 
 	if(weapon->ConsumesEnergy()
 			&& energy < weapon->FiringEnergy() + weapon->RelativeFiringEnergy() * attributes.Get("energy capacity"))
@@ -3736,6 +3732,19 @@ Ship::CanFireResult Ship::CanFire(const Weapon *weapon) const
 
 
 
+bool Ship::HasAmmoFor(const Weapon *weapon) const
+{
+	for(const auto &[ammo, usage] : weapon->Ammo())
+	{
+		int count = OutfitCount(ammo);
+		if(count < usage || (!usage && !count))
+			return false;
+	}
+	return true;
+}
+
+
+
 // Fire the given weapon (i.e. deduct whatever energy, ammo, hull, shields
 // or fuel it uses and add whatever heat it generates). Assume that CanFire()
 // is true.
@@ -3749,14 +3758,16 @@ void Ship::ExpendAmmo(const Weapon &weapon)
 	const double relativeHullChange = weapon.RelativeFiringHull() * MaxHull();
 	const double relativeShieldChange = weapon.RelativeFiringShields() * MaxShields();
 
-	if(const Outfit *ammo = weapon.Ammo())
+	for(const auto &[ammo, usage] : weapon.Ammo())
 	{
+		if(!usage)
+			continue;
 		// Some amount of the ammunition mass to be removed from the ship carries thermal energy.
 		// A realistic fraction applicable to all cases cannot be computed, so assume 50%.
-		heat -= weapon.AmmoUsage() * .5 * ammo->Mass() * MAXIMUM_TEMPERATURE * Heat();
-		AddOutfit(ammo, -weapon.AmmoUsage());
-		// Recalculate the AI to account for the loss of this weapon.
-		if(!OutfitCount(ammo) && ammo->GetWeapon() && ammo->GetWeapon()->AmmoUsage())
+		heat -= usage * .5 * ammo->Mass() * MAXIMUM_TEMPERATURE * Heat();
+		AddOutfit(ammo, -usage);
+		// If this weapon uses a weapon as ammo, recalculate the AI to account for the loss of the weapon.
+		if(ammo->GetWeapon() && !OutfitCount(ammo))
 			aiCache.Calibrate(*this);
 	}
 

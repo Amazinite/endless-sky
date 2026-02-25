@@ -50,9 +50,8 @@ void ShipAICache::Calibrate(const Ship &ship)
 			continue;
 
 		hasWeapons = true;
-		bool lackingAmmo = (weapon->Ammo() && weapon->AmmoUsage() && !ship.OutfitCount(weapon->Ammo()));
 		// Weapons without ammo might as well not exist, so don't even consider them
-		if(lackingAmmo)
+		if(!ship.HasAmmoFor(weapon))
 			continue;
 		canFight = true;
 
@@ -117,7 +116,7 @@ void ShipAICache::Calibrate(const Ship &ship)
 		const Weapon *weapon = hardpoint.GetWeapon();
 		if(!weapon || hardpoint.IsSpecial())
 			continue;
-		if((weapon->Ammo() && !ship.OutfitCount(weapon->Ammo())) || !weapon->DoesDamage())
+		if(!ship.HasAmmoFor(weapon) || !weapon->DoesDamage())
 			continue;
 		double weaponRange = weapon->Range() + hardpoint.GetPoint().Length();
 		if(hardpoint.IsTurret())

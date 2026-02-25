@@ -90,8 +90,7 @@ public:
 	double BurstReload() const;
 	int BurstCount() const;
 
-	const Outfit *Ammo() const;
-	int AmmoUsage() const;
+	const std::map<const Outfit *, int> &Ammo() const;
 
 	int MissileStrength() const;
 	int AntiMissile() const;
@@ -284,9 +283,9 @@ private:
 	double burstReload = 1.;
 	int burstCount = 1;
 
-	// A pair representing the outfit that is consumed as ammo and the number
+	// A map representing the outfit that is consumed as ammo and the number
 	// of that outfit consumed upon fire.
-	std::pair<const Outfit *, int> ammo;
+	std::map<const Outfit *, int> ammo;
 
 	int missileStrength = 0;
 	int antiMissile = 0;

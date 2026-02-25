@@ -56,20 +56,30 @@ void AmmoDisplay::Update(const Ship &flagship)
 		const Outfit *outfit = it.GetOutfit();
 		if(!outfit)
 			continue;
-		const Weapon *secWeapon = outfit->GetWeapon().get();
-		if(!secWeapon->Icon() || ammo.find(outfit) != ammo.end())
+		const Weapon *weapon = outfit->GetWeapon().get();
+		if(!weapon->Icon() || ammo.contains(outfit))
 			continue;
 
-		double ammoCount = -1.;
-		if(secWeapon->Ammo())
-			ammoCount = flagship.OutfitCount(secWeapon->Ammo());
-		if(secWeapon->FiringFuel())
+		double ammoCount = numeric_limits<double>::infinity();
+		for(const auto &[ammoOutfit, usage] : weapon->Ammo())
 		{
-			double remaining = flagship.Fuel()
-				* flagship.Attributes().Get("fuel capacity");
-			double fuelAmmoCount = remaining / secWeapon->FiringFuel();
+			int count = flagship.OutfitCount(ammoOutfit);
+			if(!usage)
+			{
+				if(!count)
+				{
+					ammoCount = 0.;
+					break;
+				}
+				continue;
+			}
+			ammoCount = min<double>(ammoCount, count / usage);
+		}
+		if(ammoCount && weapon->FiringFuel())
+		{
+			double remaining = flagship.Fuel() * flagship.Attributes().Get("fuel capacity");
 			// Decide what remaining ammunition value to display.
-			ammoCount = (ammoCount == -1. ? fuelAmmoCount : min(ammoCount, fuelAmmoCount));
+			ammoCount = min(ammoCount, remaining / weapon->FiringFuel());
 		}
 		ammo[outfit] = ammoCount;
 	}

@@ -26,6 +26,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <ranges>
 
 using namespace std;
 
@@ -284,8 +285,8 @@ void Outfit::Load(const DataNode &node, const ConditionsStore *playerConditions)
 			Weapon newWeapon = *weapon;
 			newWeapon.Load(child);
 			weapon = make_shared<Weapon>(std::move(newWeapon));
-			if(weapon->Ammo())
-				linkedOutfits.insert(weapon->Ammo());
+			for(const auto &ammo : weapon->Ammo() | views::keys)
+				linkedOutfits.insert(ammo);
 		}
 		else if(key == "ammo" && hasValue)
 		{
@@ -615,8 +616,11 @@ const set<const Outfit *> &Outfit::AmmoStored() const
 const set<const Outfit *> &Outfit::AmmoStoredOrUsed() const
 {
 	static set<const Outfit *> weaponAmmo;
-	if(weapon && weapon->Ammo() && weaponAmmo.empty())
-		weaponAmmo.insert(weapon->Ammo());
+	if(weapon && !weapon->Ammo().empty() && weaponAmmo.empty())
+	{
+		auto view = std::views::keys(weapon->Ammo());
+		weaponAmmo.insert(view.begin(), view.end());
+	}
 	return weapon ? weaponAmmo : ammoStored;
 }
 

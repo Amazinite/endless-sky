@@ -24,6 +24,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <ranges>
 
 using namespace std;
 
@@ -216,9 +217,9 @@ set<const Outfit *> Armament::RestockableAmmo() const
 		const Weapon *weapon = hardpoint.GetWeapon();
 		if(weapon)
 		{
-			const Outfit *ammo = weapon->Ammo();
-			if(ammo && !ammo->GetWeapon())
-				restockable.emplace(ammo);
+			for(const auto &ammo : weapon->Ammo() | views::keys)
+				if(!ammo->GetWeapon())
+					restockable.emplace(ammo);
 		}
 	}
 	return restockable;

@@ -301,7 +301,7 @@ namespace {
 					const Weapon *weapon = hardpoint.GetWeapon();
 					if(weapon)
 					{
-						if(weapon->Ammo() && !ship.OutfitCount(weapon->Ammo()))
+						if(!ship.HasAmmoFor(weapon))
 							continue;
 						double damage = weapon->ShieldDamage() + weapon->HullDamage()
 							+ (weapon->RelativeShieldDamage() * ship.MaxShields())

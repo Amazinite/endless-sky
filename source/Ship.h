@@ -495,6 +495,9 @@ public:
 	// energy, ammo, and fuel to fire it).
 	// Assume the weapon is valid.
 	CanFireResult CanFire(const Weapon *weapon) const;
+	// Check if this ship has ammo for the given weapon. True if either the weapon
+	// doesn't use ammo, or it does use ammo and the ship has enough.
+	bool HasAmmoFor(const Weapon *weapon) const;
 	// Fire the given weapon (i.e. deduct whatever energy, ammo, or fuel it uses
 	// and add whatever heat it generates). Assume that CanFire() is true.
 	void ExpendAmmo(const Weapon &weapon);

@@ -161,13 +161,8 @@ namespace {
 		for(const Hardpoint &hardpoint : ship.Weapons())
 		{
 			const Weapon *weapon = hardpoint.GetWeapon();
-			if(weapon && !hardpoint.IsSpecial())
-			{
-				const Outfit *ammo = weapon->Ammo();
-				if(ammo && !ship.OutfitCount(ammo))
-					continue;
+			if(weapon && !hardpoint.IsSpecial() && ship.HasAmmoFor(weapon))
 				return true;
-			}
 		}
 		return false;
 	}
@@ -2439,16 +2434,18 @@ bool AI::ShouldDock(const Ship &ship, const Ship &parent, const System *playerSy
 		const Weapon *weapon = hardpoint.GetWeapon();
 		if(weapon && !hardpoint.IsSpecial())
 		{
-			const Outfit *ammo = weapon->Ammo();
-			if(!ammo || ship.OutfitCount(ammo))
+			if(ship.HasAmmoFor(weapon))
 			{
 				// This fighter has at least one usable weapon, and
 				// thus does not need to dock to continue fighting.
 				requiredAmmo.clear();
 				break;
 			}
-			else if(parent.OutfitCount(ammo))
-				requiredAmmo.insert(ammo);
+			if(parent.HasAmmoFor(weapon))
+			{
+				auto view = std::views::keys(weapon->Ammo());
+				requiredAmmo.insert(view.begin(), view.end());
+			}
 		}
 	}
 	if(!requiredAmmo.empty())
@@ -4010,9 +4007,9 @@ void AI::AutoFire(const Ship &ship, FireCommand &command, bool secondary, bool i
 		if(hardpoint.IsReady())
 		{
 			const Weapon *weapon = hardpoint.GetWeapon();
-			if(!(!currentTarget && hardpoint.IsHoming() && weapon->Ammo())
+			if(!(!currentTarget && hardpoint.IsHoming() && !weapon->Ammo().empty())
 					&& !(!secondary && weapon->Icon())
-					&& !(beFrugal && weapon->Ammo())
+					&& !(beFrugal && !weapon->Ammo().empty())
 					&& !(isWaitingToJump && weapon->FiringForce()))
 				maxRange = max(maxRange, weapon->Range());
 		}
@@ -4047,13 +4044,13 @@ void AI::AutoFire(const Ship &ship, FireCommand &command, bool secondary, bool i
 
 		const Weapon *weapon = hardpoint.GetWeapon();
 		// Don't expend ammo for homing weapons that have no target selected.
-		if(!currentTarget && weapon->Homing() && weapon->Ammo())
+		if(!currentTarget && weapon->Homing() && !weapon->Ammo().empty())
 			continue;
 		// Don't fire secondary weapons if told not to.
 		if(!secondary && weapon->Icon())
 			continue;
 		// Don't expend ammo if trying to be frugal.
-		if(beFrugal && weapon->Ammo())
+		if(beFrugal && !weapon->Ammo().empty())
 			continue;
 		// Don't use weapons with firing force if you are preparing to jump.
 		if(isWaitingToJump && weapon->FiringForce())
@@ -4170,7 +4167,7 @@ void AI::AutoFire(const Ship &ship, FireCommand &command, const Body &target) co
 		if(!hardpoint.IsReady())
 			continue;
 		const Weapon *weapon = hardpoint.GetWeapon();
-		if(weapon->Icon() || weapon->Ammo())
+		if(weapon->Icon() || !weapon->Ammo().empty())
 			continue;
 
 		// Figure out where this weapon will fire from, but add some randomness
