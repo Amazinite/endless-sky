@@ -4858,6 +4858,7 @@ void Ship::DoMovement(bool &isUsingAfterburner)
 {
 	isUsingAfterburner = false;
 
+	bool inertialess = attributes.Get("inertialess");
 	double mass = InertialMass();
 	double dragForce = DragForce();
 	double slowMultiplier = 1. / (1. + slowness * .05);
@@ -5041,20 +5042,44 @@ void Ship::DoMovement(bool &isUsingAfterburner)
 			// when trying to stop and ending up headed in the other direction.
 			if(commands.Has(Command::STOP))
 			{
-				// How much acceleration would it take to come to a stop in the
-				// direction normal to the ship's current facing? This is only
-				// possible if the acceleration plus drag vector is in the
-				// opposite direction from the velocity vector when both are
-				// projected onto the current facing vector, and the acceleration
-				// vector is the larger of the two.
-				double vNormal = velocity.Dot(angle.Unit());
-				double aNormal = dragAcceleration.Dot(angle.Unit());
-				if((aNormal > 0.) != (vNormal > 0.) && fabs(aNormal) > fabs(vNormal))
-					dragAcceleration = -vNormal * angle.Unit();
+				if(attributes.Get("inertialess braking"))
+				{
+					velocity = Point();
+					dragAcceleration = Point();
+				}
+				else
+				{
+					// How much acceleration would it take to come to a stop in the
+					// direction normal to the ship's current facing? This is only
+					// possible if the acceleration plus drag vector is in the
+					// opposite direction from the velocity vector when both are
+					// projected onto the current facing vector, and the acceleration
+					// vector is the larger of the two.
+					double vNormal = velocity.Dot(angle.Unit());
+					double aNormal = dragAcceleration.Dot(angle.Unit());
+					if((aNormal > 0.) != (vNormal > 0.) && fabs(aNormal) > fabs(vNormal))
+						dragAcceleration = -vNormal * angle.Unit();
+				}
 			}
 			velocity += dragAcceleration;
 		}
 		acceleration = Point();
+	}
+	// Inertialess ships always move toward their facing direction.
+	// TODO: Update the AI to be able to understand this flight mode.
+	// TODO: Constantly expend thrust resources as a fraction of the current speed to the maximum? What happens when
+	//  you run out?
+	// TODO: Have down-throttling be controlled by something other than reverse thrust? Separate attribute where
+	//  down-throttling occurs at a fraction of the forward rate? (Would only make sense with the constant
+	//  expenditure of resources when thrusting.)
+	if(inertialess)
+	{
+		// If this ship is reversing and has a low speed, bring it to a stop.
+		double speed = velocity.Length();
+		if(isReversing && speed < 0.1)
+			velocity = Point();
+		else
+			velocity = speed * angle.Unit();
 	}
 }
 

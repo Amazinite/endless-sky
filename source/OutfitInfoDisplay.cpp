@@ -240,7 +240,9 @@ namespace {
 		{"cloaked communication", "You may make hails while cloaked."},
 		{"cloaked deployment", "You may deploy from bays while cloaked."},
 		{"cloaked pickup", "You may pick up flotsam while cloaked."},
-		{"cloaked scanning", "You may scan other ships while cloaked."}
+		{"cloaked scanning", "You may scan other ships while cloaked."},
+		{"inertialess", "Removes inertia when flying."},
+		{"inertialess braking", "Allows you to stop instantaneously."},
 	};
 
 	bool IsNotRequirement(const string &label)

@@ -142,12 +142,22 @@ namespace {
 	Point ScaledFlareCurve(const Ship &ship, Ship::ThrustKind kind)
 	{
 		// When a ship lands, its thrusters should scale with it.
+		// If a ship is inertialess, then its forward thrusting flares scale with the fraction of its
+		// max speed that it is currently traveling at instead of how long the thrust key has been held.
+		if(kind == Ship::ThrustKind::FORWARD && ship.Attributes().Get("inertialess"))
+		{
+			double scale = min(1., ship.Velocity().Length() / ship.MaxVelocity());
+			scale = sqrt(-scale * (scale - 2));
+			return Point(scale, scale) * ship.Zoom();
+		}
 		return FlareCurve(ship.ThrustHeldFraction(kind)) * ship.Zoom();
 	}
 
 	void DrawFlareSprites(const Ship &ship, DrawList &draw, const vector<Ship::EnginePoint> &enginePoints,
 		const vector<pair<Body, int>> &flareSprites, uint8_t side, bool reverse)
 	{
+		if(enginePoints.empty())
+			return;
 		Point thrustScale = ScaledFlareCurve(ship, reverse ? Ship::ThrustKind::REVERSE : Ship::ThrustKind::FORWARD);
 		Point leftTurnScale = ScaledFlareCurve(ship, Ship::ThrustKind::LEFT);
 		Point rightTurnScale = ScaledFlareCurve(ship, Ship::ThrustKind::RIGHT);
@@ -2862,14 +2872,13 @@ void Engine::DrawShipSprites(const Ship &ship)
 
 	auto DrawEngineFlares = [&](uint8_t where)
 	{
-		if(ship.ThrustHeldFrames(Ship::ThrustKind::FORWARD) && !ship.EnginePoints().empty())
+		if(ship.ThrustHeldFrames(Ship::ThrustKind::FORWARD) || ship.Attributes().Get("inertialess"))
 			DrawFlareSprites(ship, draw[currentCalcBuffer], ship.EnginePoints(),
 				ship.Attributes().FlareSprites(), where, false);
-		else if(ship.ThrustHeldFrames(Ship::ThrustKind::REVERSE) && !ship.ReverseEnginePoints().empty())
+		else if(ship.ThrustHeldFrames(Ship::ThrustKind::REVERSE))
 			DrawFlareSprites(ship, draw[currentCalcBuffer], ship.ReverseEnginePoints(),
 				ship.Attributes().ReverseFlareSprites(), where, true);
-		if((ship.ThrustHeldFrames(Ship::ThrustKind::LEFT) || ship.ThrustHeldFrames(Ship::ThrustKind::RIGHT))
-			&& !ship.SteeringEnginePoints().empty())
+		if((ship.ThrustHeldFrames(Ship::ThrustKind::LEFT) || ship.ThrustHeldFrames(Ship::ThrustKind::RIGHT)))
 			DrawFlareSprites(ship, draw[currentCalcBuffer], ship.SteeringEnginePoints(),
 				ship.Attributes().SteeringFlareSprites(), where, false);
 	};
