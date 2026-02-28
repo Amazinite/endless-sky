@@ -52,6 +52,14 @@ public:
 		double distanceTraveled;
 	};
 
+	enum DeathType {
+		NONE = 0,
+		NATURAL = 1 << 0,
+		COLLISION = 1 << 1,
+		EXPLOSION = 1 << 2,
+		ANTI_MISSILE = 1 << 3,
+	};
+
 
 public:
 	Projectile(const Ship &parent, Point position, Angle angle, const Weapon *weapon);
@@ -110,15 +118,6 @@ public:
 	// will be decided if it should completely phase through or make contact.
 	bool Phases(const Ship &ship) const;
 	void SetPhases(const Ship *ship);
-
-
-private:
-	enum class DeathType {
-		NATURAL,
-		COLLISION,
-		EXPLOSION,
-		ANTI_MISSILE,
-	};
 
 
 private:

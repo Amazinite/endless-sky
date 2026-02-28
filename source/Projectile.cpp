@@ -164,22 +164,16 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 					visuals.emplace_back(*it.first, effectPosition, velocity, angle);
 		}
 
-		if(death != DeathType::COLLISION)
+		for(const auto &it : weapon->Submunitions())
 		{
-			for(const auto &it : weapon->Submunitions())
+			if(!(it.spawnOn & death))
+				continue;
+			for(size_t i = 0; i < it.count; ++i)
 			{
-				if((it.spawnOnNaturalDeath && death == DeathType::NATURAL)
-					|| (it.spawnOnExplosiveDeath && death == DeathType::EXPLOSION)
-					|| (it.spawnOnAntiMissileDeath && death == DeathType::ANTI_MISSILE))
-				{
-					for(size_t i = 0; i < it.count; ++i)
-					{
-						const Weapon *const subWeapon = it.weapon.get();
-						Angle inaccuracy = Distribution::GenerateInaccuracy(subWeapon->Inaccuracy(),
-								subWeapon->InaccuracyDistribution());
-						projectiles.emplace_back(*this, it.offset, it.facing + inaccuracy, subWeapon);
-					}
-				}
+				const Weapon *const subWeapon = it.weapon.get();
+				Angle inaccuracy = Distribution::GenerateInaccuracy(subWeapon->Inaccuracy(),
+						subWeapon->InaccuracyDistribution());
+				projectiles.emplace_back(*this, it.offset, it.facing + inaccuracy, subWeapon);
 			}
 		}
 		MarkForRemoval();

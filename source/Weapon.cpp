@@ -176,16 +176,18 @@ void Weapon::Load(const DataNode &node)
 					submunitions.back().offset = Point(grand.Value(1), grand.Value(2));
 				else if(grandKey == "spawn on" && grandHasValue)
 				{
-					submunitions.back().spawnOnNaturalDeath = false;
+					submunitions.back().spawnOn = Projectile::DeathType::NONE;
 					for(int j = 1; j < grand.Size(); ++j)
 					{
 						const string &grandValue = grand.Token(j);
 						if(grandValue == "natural")
-							submunitions.back().spawnOnNaturalDeath = true;
-						else if(grandValue == "anti-missile")
-							submunitions.back().spawnOnAntiMissileDeath = true;
+							submunitions.back().spawnOn |= Projectile::DeathType::NATURAL;
+						else if(grandValue == "collision")
+							submunitions.back().spawnOn |= Projectile::DeathType::COLLISION;
 						else if(grandValue == "explosion")
-							submunitions.back().spawnOnExplosiveDeath = true;
+							submunitions.back().spawnOn |= Projectile::DeathType::EXPLOSION;
+						else if(grandValue == "anti-missile")
+							submunitions.back().spawnOn |= Projectile::DeathType::ANTI_MISSILE;
 					}
 				}
 				else
