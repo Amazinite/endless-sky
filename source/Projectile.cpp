@@ -57,13 +57,6 @@ namespace {
 			return Random::Real() > tracking / (1. + jamming);
 		}
 	}
-
-	// Projectiles that die in a direct collision should not engage in any on-death effects,
-	// including creating die effects and submunitions.
-	const int NO_ON_DEATH_EFFECTS = -1000;
-	// Projectiles that die because they were hit by anti-missile can have different on-death
-	// effects than when they died by other means.
-	const int DIED_BY_ANTI_MISSILE = -100;
 }
 
 
@@ -144,10 +137,11 @@ Projectile::Projectile(const Projectile &parent, const Point &offset, const Angl
 
 
 // Ship explosion.
-Projectile::Projectile(Point position, const Weapon *weapon)
+Projectile::Projectile(const Point &position, const Angle &angle, const Weapon *weapon)
 	: weapon(weapon), isShipExplosion(true)
 {
 	this->position = position;
+	this->angle = angle;
 }
 
 
@@ -157,7 +151,7 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 {
 	if(--lifetime <= 0)
 	{
-		if(lifetime > NO_ON_DEATH_EFFECTS)
+		if(death == DeathType::NATURAL || death == DeathType::ANTI_MISSILE)
 		{
 			// Create any death effects.
 			// Place effects ahead of the projectile by 1.5x velocity. 1x comes from
@@ -168,9 +162,16 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 			for(const auto &it : weapon->DieEffects())
 				for(int i = 0; i < it.second; ++i)
 					visuals.emplace_back(*it.first, effectPosition, velocity, angle);
+		}
 
+		if(death != DeathType::COLLISION)
+		{
 			for(const auto &it : weapon->Submunitions())
-				if(lifetime > DIED_BY_ANTI_MISSILE ? it.spawnOnNaturalDeath : it.spawnOnAntiMissileDeath)
+			{
+				if((it.spawnOnNaturalDeath && death == DeathType::NATURAL)
+					|| (it.spawnOnExplosiveDeath && death == DeathType::EXPLOSION)
+					|| (it.spawnOnAntiMissileDeath && death == DeathType::ANTI_MISSILE))
+				{
 					for(size_t i = 0; i < it.count; ++i)
 					{
 						const Weapon *const subWeapon = it.weapon.get();
@@ -178,6 +179,8 @@ void Projectile::Move(vector<Visual> &visuals, vector<Projectile> &projectiles)
 								subWeapon->InaccuracyDistribution());
 						projectiles.emplace_back(*this, it.offset, it.facing + inaccuracy, subWeapon);
 					}
+				}
+			}
 		}
 		MarkForRemoval();
 		return;
@@ -346,11 +349,8 @@ void Projectile::Collide(vector<Visual> &visuals, const Collision &collision)
 	if(--hitsRemaining == 0)
 	{
 		clip = intersection;
-		// Projectiles that die by exploding should still be capable of creating death effects.
-		if(collision.GetCollisionType() == CollisionType::EXPLOSION)
-			lifetime = 0;
-		else
-			lifetime = NO_ON_DEATH_EFFECTS;
+		lifetime = 0;
+		death = collision.GetCollisionType() == CollisionType::EXPLOSION ? DeathType::EXPLOSION : DeathType::COLLISION;
 	}
 }
 
@@ -375,7 +375,8 @@ bool Projectile::IsDead() const
 // This projectile was killed, e.g. by an anti-missile system.
 void Projectile::Kill()
 {
-	lifetime = DIED_BY_ANTI_MISSILE;
+	lifetime = 0;
+	death = DeathType::ANTI_MISSILE;
 }
 
 

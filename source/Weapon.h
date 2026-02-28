@@ -56,6 +56,7 @@ public:
 
 		bool spawnOnNaturalDeath = true;
 		bool spawnOnAntiMissileDeath = false;
+		bool spawnOnExplosiveDeath = false;
 	};
 
 

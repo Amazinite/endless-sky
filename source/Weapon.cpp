@@ -179,10 +179,13 @@ void Weapon::Load(const DataNode &node)
 					submunitions.back().spawnOnNaturalDeath = false;
 					for(int j = 1; j < grand.Size(); ++j)
 					{
-						if(grand.Token(j) == "natural")
+						const string &grandValue = grand.Token(j);
+						if(grandValue == "natural")
 							submunitions.back().spawnOnNaturalDeath = true;
-						else if(grand.Token(j) == "anti-missile")
+						else if(grandValue == "anti-missile")
 							submunitions.back().spawnOnAntiMissileDeath = true;
+						else if(grandValue == "explosion")
+							submunitions.back().spawnOnExplosiveDeath = true;
 					}
 				}
 				else

@@ -57,7 +57,7 @@ public:
 	Projectile(const Ship &parent, Point position, Angle angle, const Weapon *weapon);
 	Projectile(const Projectile &parent, const Point &offset, const Angle &angle, const Weapon *weapon);
 	// Ship explosion.
-	Projectile(Point position, const Weapon *weapon);
+	Projectile(const Point &position, const Angle &angle, const Weapon *weapon);
 
 	// Functions provided by the Body base class:
 	// Frame GetFrame(int step = -1) const;
@@ -113,6 +113,15 @@ public:
 
 
 private:
+	enum class DeathType {
+		NATURAL,
+		COLLISION,
+		EXPLOSION,
+		ANTI_MISSILE,
+	};
+
+
+private:
 	void CheckLock(const Entity *target, bool targetIsShip);
 	void CheckConfused(const Entity &target);
 
@@ -131,9 +140,10 @@ private:
 	// relative to the firing ship.
 	Point dV;
 	double clip = 1.;
-	// A positive value means the projectile is alive, -100 means it was killed
-	// by an anti-missile system, and -1000 means it exploded in a collision.
+	// A non-zero positive value means the projectile is alive.
 	int lifetime = 0;
+	// The manner by which this projectile died.
+	DeathType death = DeathType::NATURAL;
 	double distanceTraveled = 0.;
 	uint16_t hitsRemaining = 1U;
 	bool hasLock = true;
