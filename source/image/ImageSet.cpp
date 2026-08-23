@@ -172,8 +172,8 @@ void ImageSet::ValidateFrames() noexcept(false)
 	if(!paths[PATH_2X_MASK].empty())
 		is2x[BUFFER_MASK] = true;
 	if(is2x[BUFFER_MASK] && !paths[PATH_1X_MASK].empty() && paths[PATH_1X_MASK].size() != paths[PATH_2X_MASK].size())
-		Logger::Log(prefix + "the number of normal resolution mask frames does not match the number of @mask 2x "
-			"frames. Collision masks may not match what is expected.", Logger::Level::WARNING);
+		Logger::Log(prefix + "the number of normal resolution mask frames does not match the number of @2x mask "
+			"frames. Swizzles may not match what is expected.", Logger::Level::WARNING);
 
 	// The number of mask frames must either be 0, 1, or equal the number of main frames.
 	int mainFrames = paths[is2x[BUFFER_MAIN]].size();
@@ -215,8 +215,7 @@ void ImageSet::Load() noexcept(false)
 	buffer[BUFFER_MAIN].Clear(frames);
 	UpdateFrameCount();
 
-	// Load the 1x sprites first, then the 2x sprites, because they are likely
-	// to be in separate locations on the disk. Create masks if needed.
+	// Load the main sprites. Create masks if needed.
 	for(size_t i = 0; i < paths[is2x[BUFFER_MAIN]].size(); ++i)
 	{
 		int loadedFrames = buffer[BUFFER_MAIN].Read(paths[is2x[BUFFER_MAIN]][i], i);
