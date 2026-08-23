@@ -167,7 +167,7 @@ namespace {
 	}
 
 
-	void SmoothAndCenter(vector<Point> &raw, Point size)
+	void SmoothAndCenter(vector<Point> &raw, Point size, bool is2x)
 	{
 		// Smooth out the outline by averaging neighboring points.
 		Point prev = raw.back();
@@ -178,6 +178,9 @@ namespace {
 			// Since we'll always be using these sprites at 50% scale, do that
 			// scaling here.
 			prev *= .25;
+			// Scale by a further 50% if this mask is being generated from a 2x image.
+			if(is2x)
+				prev *= .5;
 			swap(prev, p);
 		}
 	}
@@ -281,7 +284,7 @@ namespace {
 
 
 // Construct a mask from the alpha channel of an RGBA-formatted image.
-void Mask::Create(const ImageBuffer &image, int frame, const string &fileName)
+void Mask::Create(const ImageBuffer &image, bool is2x, int frame, const string &fileName)
 {
 	outlines.clear();
 	radius = 0.;
@@ -294,7 +297,7 @@ void Mask::Create(const ImageBuffer &image, int frame, const string &fileName)
 	outlines.reserve(raw.size());
 	for(auto &edge : raw)
 	{
-		SmoothAndCenter(edge, Point(image.Width(), image.Height()));
+		SmoothAndCenter(edge, Point(image.Width(), image.Height()), is2x);
 
 		auto outline = Simplify(edge);
 		// Skip any outlines that have no area.

@@ -38,14 +38,13 @@ public:
 	// Used for sprites that use deferred loading to allow them to at least know their
 	// size for certain panels that rely on knowing a sprite's size without needing the sprite
 	// to be fully loaded.
-	void LoadDimensions(const ImageBuffer &buffer);
+	void LoadDimensions(const ImageBuffer &buffer, bool is2x);
 	// Whether this sprite has any dimensions, guaranteeing that it exists even if it needs to be loaded.
 	bool HasDimensions() const;
 
 	// Add the given frames, optionally uploading them. The given buffers will be cleared afterwards.
-	// Receive both the 1x and 2x buffers. If the 2x buffer is not empty, then it will be used.
-	void AddFrames(ImageBuffer &buffer1x, ImageBuffer &buffer2x, bool noReduction);
-	void AddSwizzleMaskFrames(ImageBuffer &buffer1x, ImageBuffer &buffer2x, bool noReduction);
+	void AddFrames(ImageBuffer &buffer, bool is2x, bool noReduction);
+	void AddSwizzleMaskFrames(ImageBuffer &buffer, bool noReduction);
 	// Whether the textures for this sprite have been uploaded yet.
 	bool IsLoaded() const;
 	// Free up all textures loaded for this sprite.

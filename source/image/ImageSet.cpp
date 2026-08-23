@@ -30,6 +30,14 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 using namespace std;
 
 namespace {
+	const int PATH_1X_MAIN = 0;
+	const int PATH_2X_MAIN = 1;
+	const int PATH_1X_MASK = 2;
+	const int PATH_2X_MASK = 3;
+
+	const int BUFFER_MAIN = 0;
+	const int BUFFER_MASK = 1;
+
 	// Determine whether the given path or name is to a sprite for which a
 	// collision mask ought to be generated.
 	bool IsMasked(const filesystem::path &path)
@@ -107,7 +115,7 @@ const string &ImageSet::Name() const
 // Whether this image set is empty, i.e. has no images.
 bool ImageSet::IsEmpty() const
 {
-	return framePaths[0].empty() && framePaths[1].empty();
+	return framePaths[PATH_1X_MAIN].empty() && framePaths[PATH_2X_MAIN].empty();
 }
 
 
@@ -128,14 +136,14 @@ void ImageSet::Add(ImageFileData data)
 void ImageSet::ValidateFrames() noexcept(false)
 {
 	string prefix = "Sprite \"" + name + "\": ";
-	AddValid(framePaths[0], paths[0], prefix, false, false);
-	AddValid(framePaths[1], paths[1], prefix, true, false);
-	AddValid(framePaths[2], paths[2], prefix, false, true);
-	AddValid(framePaths[3], paths[3], prefix, true, true);
-	framePaths[0].clear();
-	framePaths[1].clear();
-	framePaths[2].clear();
-	framePaths[3].clear();
+	AddValid(framePaths[PATH_1X_MAIN], paths[PATH_1X_MAIN], prefix, false, false);
+	AddValid(framePaths[PATH_2X_MAIN], paths[PATH_2X_MAIN], prefix, true, false);
+	AddValid(framePaths[PATH_1X_MASK], paths[PATH_1X_MASK], prefix, false, true);
+	AddValid(framePaths[PATH_2X_MASK], paths[PATH_2X_MASK], prefix, true, true);
+	framePaths[PATH_1X_MAIN].clear();
+	framePaths[PATH_2X_MAIN].clear();
+	framePaths[PATH_1X_MASK].clear();
+	framePaths[PATH_2X_MASK].clear();
 
 	// Ensure that image sequences aren't mixed with other images.
 	for(int i = 0; i < 4; ++i)
@@ -152,24 +160,31 @@ void ImageSet::ValidateFrames() noexcept(false)
 			}
 		}
 
-	auto DropPaths = [&](vector<filesystem::path> &toResize, const string &specifier)
-	{
-		if(toResize.size() > paths[0].size())
-		{
-			if(paths[0].empty())
-				Logger::Log(prefix + "all frames for the " + specifier + " sprite will be ignored, "
-					"as it has no corresponding normal resolution frame(s).", Logger::Level::WARNING);
-			else
-				Logger::Log(prefix + to_string(toResize.size() - paths[0].size())
-					+ " extra frame(s) for the " + specifier + " sprite will be ignored.", Logger::Level::WARNING);
-			toResize.resize(paths[0].size());
-		}
-	};
+	// Determine if we are using 1x or 2x paths for the main and mask buffers.
+	// If 2x paths are present, those will be the paths that are used to populate the buffers.
+	// Warn if the number of 1x and 2x paths do not match if both sets of paths are present,
+	// as this is likely a content creation error.
+	if(!paths[PATH_2X_MAIN].empty())
+		is2x[BUFFER_MAIN] = true;
+	if(is2x[BUFFER_MAIN] && !paths[PATH_1X_MAIN].empty() && paths[PATH_1X_MAIN].size() != paths[PATH_2X_MAIN].size())
+		Logger::Log(prefix + "the number of normal resolution frames does not match the number of @2x frames. "
+			"Visuals may not match what is expected.", Logger::Level::WARNING);
+	if(!paths[PATH_2X_MASK].empty())
+		is2x[BUFFER_MASK] = true;
+	if(is2x[BUFFER_MASK] && !paths[PATH_1X_MASK].empty() && paths[PATH_1X_MASK].size() != paths[PATH_2X_MASK].size())
+		Logger::Log(prefix + "the number of normal resolution mask frames does not match the number of @mask 2x "
+			"frames. Collision masks may not match what is expected.", Logger::Level::WARNING);
 
-	// Drop any @2x and mask paths that will not be used.
-	DropPaths(paths[1], "@2x");
-	DropPaths(paths[2], "mask");
-	DropPaths(paths[3], "@2x mask");
+	// The number of mask frames must either be 0, 1, or equal the number of main frames.
+	int mainFrames = paths[is2x[BUFFER_MAIN]].size();
+	int maskFrames = paths[2 + is2x[BUFFER_MASK]].size();
+	if(maskFrames > 1 && maskFrames != mainFrames)
+	{
+		string specifier = is2x[BUFFER_MASK] ? "@2x mask" : "mask";
+		Logger::Log(prefix + "Discarding " + to_string(maskFrames - 1) + " frames of " + specifier + " because there"
+			" are more frames of animation. Only the first swizzle mask frame will be used.", Logger::Level::WARNING);
+		paths[2 + is2x[BUFFER_MASK]].resize(1);
+	}
 }
 
 
@@ -178,43 +193,33 @@ void ImageSet::ValidateFrames() noexcept(false)
 // worker threads. This also generates collision masks if needed.
 void ImageSet::Load() noexcept(false)
 {
-	assert(framePaths[0].empty() && "should call ValidateFrames before calling Load");
+	assert(framePaths[is2x[BUFFER_MAIN]].empty() && "should call ValidateFrames before calling Load");
 
 	// Determine how many frames there will be, total. The image buffers will
 	// not actually be allocated until the first image is loaded (at which point
 	// the sprite's dimensions will be known).
-	size_t frames = paths[0].size();
-	// If there are fewer frames of swizzle mask than base image, only use the
-	// first swizzle mask frame. Send a warning if any are discarded.
-	size_t swizzleMaskFrames = paths[2].size();
-	if(swizzleMaskFrames > 1 && swizzleMaskFrames < frames)
-	{
-		Logger::Log("Discarding " + to_string(swizzleMaskFrames - 1) + " frames of swizzle mask because there"
-			" are more frames of animation. Only the first swizzle mask frame will be used.", Logger::Level::WARNING);
-		swizzleMaskFrames = 1;
-	}
+	size_t frames = paths[is2x[BUFFER_MAIN]].size();
+	size_t swizzleMaskFrames = paths[2 + is2x[BUFFER_MASK]].size();
 
 	// Check whether we need to generate collision masks.
 	bool makeMasks = IsMasked(name);
 
 	const auto UpdateFrameCount = [&]()
 	{
-		buffer[1].Clear(frames);
-		buffer[2].Clear(swizzleMaskFrames);
-		buffer[3].Clear(swizzleMaskFrames);
+		buffer[BUFFER_MASK].Clear(swizzleMaskFrames);
 
 		if(makeMasks)
 			masks.resize(frames);
 	};
 
-	buffer[0].Clear(frames);
+	buffer[BUFFER_MAIN].Clear(frames);
 	UpdateFrameCount();
 
 	// Load the 1x sprites first, then the 2x sprites, because they are likely
 	// to be in separate locations on the disk. Create masks if needed.
-	for(size_t i = 0; i < paths[0].size(); ++i)
+	for(size_t i = 0; i < paths[is2x[BUFFER_MAIN]].size(); ++i)
 	{
-		int loadedFrames = buffer[0].Read(paths[0][i], i);
+		int loadedFrames = buffer[BUFFER_MAIN].Read(paths[is2x[BUFFER_MAIN]][i], i);
 		const string fileName = "\"" + name + "\" frame #" + to_string(i);
 		if(!loadedFrames)
 		{
@@ -230,7 +235,7 @@ void ImageSet::Load() noexcept(false)
 
 		if(makeMasks)
 		{
-			masks[i].Create(buffer[0], i, fileName);
+			masks[i].Create(buffer[BUFFER_MAIN], is2x[BUFFER_MAIN], i, fileName);
 			if(!masks[i].IsLoaded())
 				Logger::Log("Failed to create collision mask for " + fileName, Logger::Level::WARNING);
 		}
@@ -247,41 +252,42 @@ void ImageSet::Load() noexcept(false)
 				break;
 			}
 	};
-	// Now, load the mask and 2x sprites, if they exist. Because the number of 1x frames
-	// is definitive, don't load any frames beyond the size of the 1x list.
-	LoadSprites(paths[1], buffer[1], "@2x");
-	LoadSprites(paths[2], buffer[2], "mask");
-	LoadSprites(paths[3], buffer[3], "@2x mask");
 
-	// Warn about a "high-profile" image that will be blurry due to rendering at 50% scale.
-	bool willBlur = (buffer[0].Width() & 1) || (buffer[0].Height() & 1);
+	// Now, load the mask sprites, if they exist.
+	LoadSprites(paths[2 + is2x[BUFFER_MASK]], buffer[BUFFER_MASK], is2x[BUFFER_MASK] ? "@2x mask" : "mask");
+
+	// Warn about a "high-profile" image that will be blurry due to rendering at
+	// 50% scale for 1x sprites and 25% scale for 2x sprites.
+	int modBy = is2x[BUFFER_MAIN] ? 4 : 2;
+	string even = is2x[BUFFER_MAIN] ? "divisible by 4" : "even";
+	bool willBlur = (buffer[BUFFER_MAIN].Width() % modBy) || (buffer[BUFFER_MAIN].Height() % modBy);
 	if(willBlur && (name.starts_with("ship/") || name.starts_with("outfit/") || name.starts_with("thumbnail/")))
-		Logger::Log("Image \"" + name + "\" will be blurry since width and/or height are not even ("
-			+ to_string(buffer[0].Width()) + "x" + to_string(buffer[0].Height()) + ").", Logger::Level::WARNING);
+		Logger::Log("Image \"" + name + "\" will be blurry since width and/or height are not " + even + " ("
+			+ to_string(buffer[BUFFER_MAIN].Width()) + "x" + to_string(buffer[BUFFER_MAIN].Height()) + ").",
+			Logger::Level::WARNING);
 }
 
 
 
 void ImageSet::LoadDimensions(Sprite *sprite) noexcept(false)
 {
-	assert(framePaths[0].empty() && "should call ValidateFrames before calling LoadDimensions");
+	assert(framePaths[is2x[BUFFER_MAIN]].empty() && "should call ValidateFrames before calling LoadDimensions");
 
-	// Read only the first frame of the 1x resolution image in order to determine the dimensions of the sprite.
+	// Read only the first frame in order to determine the dimensions of the sprite.
 	// (All frames are expected to have the same dimensions.)
-	size_t frames = paths[0].size();
-	// An ImageSet might exist for a sprite that only had 2x images defined, in which case it will have no frames.
+	size_t frames = paths[is2x[BUFFER_MAIN]].size();
 	if(!frames)
 		return;
-	buffer[0].Clear(frames);
-	int loadedFrames = buffer[0].Read(paths[0][0], 0, true);
+	buffer[BUFFER_MAIN].Clear(frames);
+	int loadedFrames = buffer[BUFFER_MAIN].Read(paths[is2x[BUFFER_MAIN]][0], 0, true);
 	if(!loadedFrames)
 	{
 		Logger::Log("Failed to read image data for \"" + name + "\" frame #0.", Logger::Level::WARNING);
 		return;
 	}
-	sprite->LoadDimensions(buffer[0]);
+	sprite->LoadDimensions(buffer[BUFFER_MAIN], is2x[BUFFER_MAIN]);
 	// Clear the buffer since no image data was actually uploaded.
-	buffer[0].Clear();
+	buffer[BUFFER_MAIN].Clear();
 }
 
 
@@ -297,8 +303,8 @@ void ImageSet::Upload(Sprite *sprite, bool enableUpload)
 			it.Clear();
 
 	// Load the frames (this will clear the buffers).
-	sprite->AddFrames(buffer[0], buffer[1], noReduction);
-	sprite->AddSwizzleMaskFrames(buffer[2], buffer[3], noReduction);
+	sprite->AddFrames(buffer[BUFFER_MAIN], is2x[BUFFER_MAIN], noReduction);
+	sprite->AddSwizzleMaskFrames(buffer[BUFFER_MASK], noReduction);
 
 	GameData::GetMaskManager().SetMasks(sprite, std::move(masks));
 	masks.clear();

@@ -72,7 +72,9 @@ private:
 	// Paths that comprise a valid animation sequence of 1 or more frames.
 	std::vector<std::filesystem::path> paths[4];
 	// Data loaded from the images:
-	ImageBuffer buffer[4];
+	ImageBuffer buffer[2];
+	// Whether the buffers contain 2x sprites.
+	bool is2x[2]{};
 	std::vector<Mask> masks;
 	bool noReduction = false;
 };

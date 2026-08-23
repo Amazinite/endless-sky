@@ -33,7 +33,7 @@ class ImageBuffer;
 class Mask {
 public:
 	// Construct a mask from the alpha channel of an RGBA-formatted image.
-	void Create(const ImageBuffer &image, int frame, const std::string &fileName);
+	void Create(const ImageBuffer &image, bool is2x, int frame, const std::string &fileName);
 
 	// Check whether a mask was successfully generated from the image.
 	bool IsLoaded() const;

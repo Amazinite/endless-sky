@@ -118,11 +118,18 @@ const string &Sprite::Name() const
 
 
 
-void Sprite::LoadDimensions(const ImageBuffer &buffer)
+void Sprite::LoadDimensions(const ImageBuffer &buffer, bool is2x)
 {
 	width = buffer.Width();
 	height = buffer.Height();
 	frames = buffer.Frames();
+	// If a 2x buffer was provided, the actual width and height of the sprite
+	// are half of the buffer's.
+	if(is2x)
+	{
+		width /= 2;
+		height /= 2;
+	}
 }
 
 
@@ -136,52 +143,34 @@ bool Sprite::HasDimensions() const
 
 
 // Add the given frames, optionally uploading them. The given buffers will be cleared afterwards.
-void Sprite::AddFrames(ImageBuffer &buffer1x, ImageBuffer &buffer2x, bool noReduction)
+void Sprite::AddFrames(ImageBuffer &buffer, bool is2x, bool noReduction)
 {
 	isLoaded = true;
-	// The 1x image determines the dimensions of the sprite's size.
-	width = buffer1x.Width();
-	height = buffer1x.Height();
-	frames = buffer1x.Frames();
+	LoadDimensions(buffer, is2x);
 	// Do nothing else if the buffer is empty.
 	// (The buffer can be empty yet still have a width and height if uploading is disabled.)
-	if(!buffer1x.Pixels())
+	if(!buffer.Pixels())
 		return;
-
-	// Only use the 2x resolution image if it is provided.
-	if(buffer2x.Pixels())
-	{
-		AddBuffer(name, buffer2x, &texture, noReduction);
-		buffer1x.Clear();
-	}
-	else
-		AddBuffer(name, buffer1x, &texture, noReduction);
+	AddBuffer(name, buffer, &texture, noReduction);
 }
 
 
 
 // Upload the given frames. The given buffers will be cleared afterwards.
-void Sprite::AddSwizzleMaskFrames(ImageBuffer &buffer1x, ImageBuffer &buffer2x, bool noReduction)
+void Sprite::AddSwizzleMaskFrames(ImageBuffer &buffer, bool noReduction)
 {
 	if(!swizzleMaskFrames)
 	{
-		swizzleMaskFrames = buffer1x.Frames();
+		swizzleMaskFrames = buffer.Frames();
 		if(swizzleMaskFrames > 1 && swizzleMaskFrames < frames)
 			swizzleMaskFrames = 1;
 	}
 
 	// Do nothing if the buffer is empty.
-	if(!buffer1x.Pixels())
+	if(!buffer.Pixels())
 		return;
 
-	// Only use the 2x resolution image if it is provided.
-	if(buffer2x.Pixels())
-	{
-		AddBuffer(name, buffer2x, &swizzleMask, noReduction);
-		buffer1x.Clear();
-	}
-	else
-		AddBuffer(name, buffer1x, &swizzleMask, noReduction);
+	AddBuffer(name, buffer, &swizzleMask, noReduction);
 }
 
 
