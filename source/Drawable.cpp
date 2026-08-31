@@ -30,7 +30,22 @@ using namespace std;
 
 
 
-// Constructor, based on a Sprite.
+ExclusiveItem<Drawable> Drawable::Parse(const DataNode &node)
+{
+	if(node.HasChildren())
+		return ExclusiveItem<Drawable>(Drawable(node));
+	return ExclusiveItem<Drawable>(GameData::Sprites().Get(node.Token(1)));
+}
+
+
+
+Drawable::Drawable(const DataNode &node)
+{
+	LoadSprite(node);
+}
+
+
+
 Drawable::Drawable(const Sprite *sprite, double zoom, Point scale, double alpha)
 	: sprite(sprite), zoom(zoom), scale(scale), alpha(alpha), randomize(true)
 {
@@ -38,7 +53,6 @@ Drawable::Drawable(const Sprite *sprite, double zoom, Point scale, double alpha)
 
 
 
-// Constructor, based on the animation from another Drawable object.
 Drawable::Drawable(const Drawable &other, double zoom, Point scale, double alpha)
 {
 	*this = other;

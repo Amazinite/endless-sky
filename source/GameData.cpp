@@ -735,6 +735,13 @@ const Set<Gamerules> &GameData::GamerulesPresets()
 
 
 
+const Set<Drawable> &GameData::Sprites()
+{
+	return objects.sprites;
+}
+
+
+
 const std::set<std::string> &GameData::UniverseWormholeRequirements()
 {
 	return objects.universeWormholeRequirements;

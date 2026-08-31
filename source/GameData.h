@@ -36,6 +36,7 @@ class Conversation;
 class DataNode;
 class DataWriter;
 class Date;
+class Drawable;
 class Effect;
 class Fleet;
 class FormationPattern;
@@ -153,6 +154,7 @@ public:
 	static const Set<TestData> &TestDataSets();
 	static const Set<Wormhole> &Wormholes();
 	static const Set<Gamerules> &GamerulesPresets();
+	static const Set<Drawable> &Sprites();
 
 	static const std::set<std::string> &UniverseWormholeRequirements();
 

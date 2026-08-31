@@ -233,8 +233,8 @@ private:
 	bool isLoaded = false;
 
 	// Sprites and sounds.
-	Drawable projectileSprite;
-	Drawable hardpointSprite;
+	ExclusiveItem<Drawable> projectileSprite;
+	ExclusiveItem<Drawable> hardpointSprite;
 	const Sound *sound = nullptr;
 	const Sound *emptySound = nullptr;
 	const Sprite *icon = nullptr;

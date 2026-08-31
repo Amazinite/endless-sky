@@ -122,9 +122,9 @@ void Weapon::Load(const DataNode &node)
 		else if(child.Size() < 2)
 			child.PrintTrace("Skipping weapon attribute with no value specified:");
 		else if(key == "sprite")
-			projectileSprite.LoadSprite(child);
+			projectileSprite = Drawable::Parse(child);
 		else if(key == "hardpoint sprite")
-			hardpointSprite.LoadSprite(child);
+			hardpointSprite = Drawable::Parse(child);
 		else if(key == "sound")
 			sound = Audio::Get(child.Token(1));
 		else if(key == "empty sound")
@@ -468,14 +468,14 @@ bool Weapon::IsLoaded() const
 // Get assets used by this weapon.
 const Drawable &Weapon::ProjectileSprite() const
 {
-	return projectileSprite;
+	return *projectileSprite;
 }
 
 
 
 const Drawable &Weapon::HardpointSprite() const
 {
-	return hardpointSprite;
+	return *hardpointSprite;
 }
 
 

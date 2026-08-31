@@ -86,6 +86,10 @@ double UniverseObjects::GetProgress() const
 
 void UniverseObjects::FinishLoading()
 {
+	for(auto &&it : sprites)
+		if(!it.second.GetSprite())
+			it.second.SetSprite(SpriteSet::Get(it.first));
+
 	for(auto &&it : planets)
 		if(it.second.IsValid())
 			it.second.FinishLoading(wormholes);
@@ -689,6 +693,13 @@ void UniverseObjects::LoadFile(const filesystem::path &path, const PlayerInfo &p
 			if(overwrite)
 				*gamerules = Gamerules();
 			gamerules->Load(node);
+		}
+		else if(key == "sprite" && hasValue)
+		{
+			Drawable *sprite = sprites.Get(node.Token(1));
+			if(overwrite)
+				*sprite = Drawable();
+			sprite->LoadSprite(node);
 		}
 		else if(key == "message category")
 		{

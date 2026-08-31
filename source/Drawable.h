@@ -15,7 +15,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "Angle.h"
+#include "ExclusiveItem.h"
 #include "Point.h"
 #include "Swizzle.h"
 
@@ -31,8 +31,16 @@ class Sprite;
 // that can be animated.
 class Drawable {
 public:
+	// If the given data node defines its own animation details, creates a
+	// new Drawable. Otherwise, gets the Drawable from GameData with globally
+	// defined animation properties.
+	static ExclusiveItem<Drawable> Parse(const DataNode &node);
+
+
+public:
 	// Constructors.
 	Drawable() = default;
+	explicit Drawable(const DataNode &node);
 	explicit Drawable(const Sprite *sprite, double zoom = 1., Point scale = Point(1., 1.), double alpha = 1.);
 	Drawable(const Drawable &other, double zoom, Point scale, double alpha);
 

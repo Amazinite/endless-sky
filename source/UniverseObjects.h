@@ -139,6 +139,7 @@ private:
 	Set<Shop<Outfit>> outfitSales;
 	Set<Wormhole> wormholes;
 	Set<Gamerules> gamerulesPresets;
+	Set<Drawable> sprites;
 
 	// This is used for speeding up the route calculations.
 	std::set<std::string> universeWormholeRequirements;
