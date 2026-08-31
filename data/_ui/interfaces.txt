@@ -353,6 +353,11 @@ interface "main menu"
 	button p "_Preferences..."
 		center -420 155
 		dimensions 120 30
+	sprite "ui/very wide button"
+		center -420 195
+	button a "_Announcements"
+		center -420 195
+		dimensions 120 30
 
 
 
