@@ -3746,7 +3746,8 @@ Point AI::TargetAim(const Ship &ship, FireCommand &targeting, const set<const Ou
 
 
 
-Point AI::TargetAim(const Ship &ship, const Body &target, FireCommand &targeting, const set<const Outfit *> *includeSecondaries)
+Point AI::TargetAim(const Ship &ship, const Body &target, FireCommand &targeting,
+	const set<const Outfit *> *includeSecondaries)
 {
 	// Determine which hardpoints can hit the target.
 	// Construct a map of weapon velocity to the candidate aim points.

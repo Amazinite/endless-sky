@@ -191,7 +191,8 @@ private:
 	// returns the direction to the target.
 	// For only the player's flagship, which secondary weapons are currently selected should be provided
 	// so that the flagship doesn't try to aim with weapons that the player isn't even using.
-	static Point TargetAim(const Ship &ship, FireCommand &targeting, const std::set<const Outfit *> *includeSecondaries = nullptr);
+	static Point TargetAim(const Ship &ship, FireCommand &targeting,
+		const std::set<const Outfit *> *includeSecondaries = nullptr);
 	static Point TargetAim(const Ship &ship, const Body &target, FireCommand &targeting,
 		const std::set<const Outfit *> *includeSecondaries = nullptr);
 	// Aim the given ship's turrets.
