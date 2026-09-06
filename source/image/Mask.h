@@ -57,6 +57,9 @@ public:
 	double Range(Point point, Angle facing) const;
 	// Get the maximum distance from the center of this mask.
 	double Radius() const;
+	// Set and get the number of pixels within the mask averaged across all frames.
+	void SetArea(double area);
+	double Area() const;
 
 	// Get the individual outlines that comprise this mask.
 	const std::vector<std::vector<Point>> &Outlines() const;
@@ -74,4 +77,5 @@ private:
 private:
 	std::vector<std::vector<Point>> outlines;
 	double radius = 0.;
+	double area = 0.;
 };

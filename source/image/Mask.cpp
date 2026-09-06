@@ -285,6 +285,7 @@ void Mask::Create(const ImageBuffer &image, int frame, const string &fileName)
 {
 	outlines.clear();
 	radius = 0.;
+	area = 0.;
 
 	vector<vector<Point>> raw;
 	Trace(image, frame, raw, fileName);
@@ -426,6 +427,20 @@ double Mask::Radius() const
 
 
 
+void Mask::SetArea(double area)
+{
+	this->area = area;
+}
+
+
+
+double Mask::Area() const
+{
+	return area;
+}
+
+
+
 // Get the individual outlines that comprise this mask.
 const vector<vector<Point>> &Mask::Outlines() const
 {
@@ -438,6 +453,7 @@ Mask Mask::operator*(Point scale) const
 {
 	Mask newMask = *this;
 	newMask.radius = 0.;
+	newMask.area = area * scale.X() * scale.Y();
 	for(auto &outline : newMask.outlines)
 	{
 		for(Point &p : outline)

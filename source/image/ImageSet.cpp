@@ -235,6 +235,13 @@ void ImageSet::Load() noexcept(false)
 				Logger::Log("Failed to create collision mask for " + fileName, Logger::Level::WARNING);
 		}
 	}
+	if(makeMasks)
+	{
+		// All masks share the same area.
+		double area = buffer[0].CalculateArea();
+		for(Mask &mask : masks)
+			mask.SetArea(area);
+	}
 
 	auto LoadSprites = [&](const vector<filesystem::path> &toLoad, ImageBuffer &buffer, const string &specifier)
 	{
