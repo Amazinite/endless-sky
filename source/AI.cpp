@@ -4050,10 +4050,9 @@ void AI::AutoFire(const Ship &ship, FireCommand &command, FireCommand &targeting
 	bool isWaitingToJump = ship.Commands().Has(Command::JUMP | Command::WAIT);
 
 	auto CanUse = [&](const Hardpoint &hardpoint) -> bool {
-		// Skip weapons that are not ready to fire.
-		if(!hardpoint.IsReady())
-			return false;
 		const Weapon *weapon = hardpoint.GetWeapon();
+		if(!weapon)
+			return false;
 		const Outfit *ammo = weapon->Ammo();
 		// Don't expend ammo for homing weapons that have no target selected.
 		if(!currentTarget && weapon->Homing() && ammo)
