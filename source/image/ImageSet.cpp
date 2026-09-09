@@ -235,13 +235,6 @@ void ImageSet::Load() noexcept(false)
 				Logger::Log("Failed to create collision mask for " + fileName, Logger::Level::WARNING);
 		}
 	}
-	if(makeMasks)
-	{
-		// All masks share the same area.
-		double area = buffer[0].CalculateArea();
-		for(Mask &mask : masks)
-			mask.SetArea(area);
-	}
 
 	auto LoadSprites = [&](const vector<filesystem::path> &toLoad, ImageBuffer &buffer, const string &specifier)
 	{
@@ -276,7 +269,7 @@ void ImageSet::LoadDimensions(Sprite *sprite) noexcept(false)
 	// Read only the first frame of the 1x resolution image in order to determine the dimensions of the sprite.
 	// (All frames are expected to have the same dimensions.)
 	size_t frames = paths[0].size();
-	// An ImageSet might exist for a sprite that only had 2x images defined, in which case it will have no frames.
+	// An ImageSet might exist for a sprite that only had 2x images defined, in which case it will have no frames
 	if(!frames)
 		return;
 	buffer[0].Clear(frames);
@@ -286,6 +279,9 @@ void ImageSet::LoadDimensions(Sprite *sprite) noexcept(false)
 		Logger::Log("Failed to read image data for \"" + name + "\" frame #0.", Logger::Level::WARNING);
 		return;
 	}
+	// Only masked sprites need to know their area.
+	if(IsMasked(name))
+		sprite->SetArea(buffer[0].CalculateArea());
 	sprite->LoadDimensions(buffer[0]);
 	// Clear the buffer since no image data was actually uploaded.
 	buffer[0].Clear();
@@ -303,6 +299,9 @@ void ImageSet::Upload(Sprite *sprite, bool enableUpload)
 		for(ImageBuffer &it : buffer)
 			it.Clear();
 
+	// Only masked sprites need to know their area.
+	if(IsMasked(name))
+		sprite->SetArea(buffer[0].CalculateArea());
 	// Load the frames (this will clear the buffers).
 	sprite->AddFrames(buffer[0], buffer[1], noReduction);
 	sprite->AddSwizzleMaskFrames(buffer[2], buffer[3], noReduction);

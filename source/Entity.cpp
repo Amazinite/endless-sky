@@ -19,6 +19,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "GameData.h"
 #include "image/Mask.h"
 #include "Random.h"
+#include "image/Sprite.h"
 #include "Visual.h"
 
 #include <algorithm>
@@ -240,7 +241,14 @@ bool Entity::IsTargetable() const
 
 double Entity::OpticalSize() const
 {
-	return opticalSize ? opticalSize : GetMask().Area();
+	if(opticalSize)
+		return opticalSize;
+	if(!sprite)
+		return 0.;
+	double area = sprite->Area();
+	if(scale != Point(1., 1.))
+		area *= scale.X() * scale.Y();
+	return area;
 }
 
 
