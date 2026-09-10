@@ -586,7 +586,7 @@ bool BoardingPanel::Scroll(double dx, double dy)
 
 // Constructor (commodity cargo).
 BoardingPanel::Plunder::Plunder(const string &commodity, int count, int unitValue)
-	:  inCargo(true), name(commodity), outfit(nullptr), count(count), unitValue(unitValue)
+	: inCargo(true), name(commodity), outfit(nullptr), count(count), unitValue(unitValue)
 {
 	UpdateStrings();
 }
