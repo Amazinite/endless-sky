@@ -172,7 +172,6 @@ void BoardingPanel::Draw()
 		// Check if this is the selected row.
 		bool isSelected = (index == selected);
 		if(isSelected)
-			FillShader::Fill(Point(plunderTableFrame.Center().X(), y + 10.), Point(plunderTableFrame.Width(), 20.), back);
 			FillShader::Fill(plunderZone, back);
 
 		// Color the item based on whether you have space for it.
