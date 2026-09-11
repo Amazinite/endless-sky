@@ -936,7 +936,7 @@ tip "net change:"
 
 tip "capacity:"
 	`Energy capacity allows a ship to temporarily draw more energy than it produces, and can be increased by installing batteries.`
-	`Heat capacity is the highest your heat generation can be without eventually causing your ship to overheat, and is influenced by the mass of the ship. If the "net change" value for heat is greater than this value, then the ship can overheat itself.`
+	`Heat capacity is the highest your heat generation can be without eventually causing your ship to overheat, and is influenced by the mass of the ship. If the "net change" value for heat is greater than this value, then the ship can overheat itself. Weapons with high firing heat per shot can cause you to become overheated even if "net change" is below heat capacity.`
 
 tip "surge:"
 	`This ship lacks energy storage. Therefore, this is the greatest amount of energy that can be drawn by any of this ship's systems in a single instant, such as the energy required for a single shot of a weapon. Systems that require more than this amount of energy to activate will be unusable.`
