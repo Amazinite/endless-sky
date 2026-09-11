@@ -41,6 +41,11 @@ public:
 	void SetFire(int index) noexcept;
 	// Check if any weapons are firing.
 	bool IsFiring() const noexcept;
+	// Get or set the on target commands.
+	bool HasTarget(int index) const noexcept;
+	void SetOnTarget(int index) noexcept;
+	// Check if any weapons are on target.
+	bool IsOnTarget() const noexcept;
 	// Gets the current turn rate of the turret at the given weapon index.
 	double Aim(int index) const noexcept;
 	double AimDecor(int index) const noexcept;
@@ -56,8 +61,10 @@ private:
 
 
 private:
-	// The weapon commands stores whether the given weapon is active.
+	// Stores whether the given weapon is firing.
 	Bitset weapon;
+	// Stores whether the given weapon is currently aiming at a target.
+	Bitset onTarget;
 	// Turret turn rates, reduced to 8 bits to save space.
 	std::vector<signed char> aim;
 	// Decoration turn rates.

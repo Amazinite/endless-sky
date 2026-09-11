@@ -63,6 +63,7 @@ void FireCommand::UpdateWith(const FireCommand &other) noexcept
 void FireCommand::Clear()
 {
 	weapon.Reset();
+	onTarget.Reset();
 	for(auto &it : aim)
 		it = '\0';
 	for(auto &it : aimDecor)
@@ -95,6 +96,31 @@ void FireCommand::SetFire(int index) noexcept
 bool FireCommand::IsFiring() const noexcept
 {
 	return weapon.Any();
+}
+
+
+
+bool FireCommand::HasTarget(int index) const noexcept
+{
+	if(!IsIndexValid(index))
+		return false;
+	return onTarget.Test(index);
+}
+
+
+
+void FireCommand::SetOnTarget(int index) noexcept
+{
+	if(!IsIndexValid(index))
+		return;
+	onTarget.Set(index);
+}
+
+
+
+bool FireCommand::IsOnTarget() const noexcept
+{
+	return onTarget.Any();
 }
 
 
