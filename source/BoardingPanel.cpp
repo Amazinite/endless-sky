@@ -35,6 +35,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Ship.h"
 #include "ShipEvent.h"
 #include "ShipInfoPanel.h"
+#include "image/Sprite.h"
 #include "image/SpriteSet.h"
 #include "shader/SpriteShader.h"
 #include "System.h"
@@ -170,19 +171,17 @@ void BoardingPanel::Draw()
 		const Plunder &item = plunder[index];
 		Rectangle plunderZone = Rectangle(Point(plunderTableFrame.Center().X(), y + 10.),
 			Point(plunderTableFrame.Width(), 20.));
+		Point pos(plunderTableInner.Left(), y + fontOff);
 
 		// Check if this is the selected row.
 		bool isSelected = (index == selected);
 		if(isSelected)
 			FillShader::Fill(plunderZone, back);
 
-		// Color the item based on whether you have space for it.
-		const Color &color = item.CanTake(*you) ? isSelected ? bright : medium : dim;
-		Point pos(plunderTableInner.Left() + iconOffset, y + fontOff);
-
 		// Draw the icon representing whether this item is in cargo or installed, and
 		// determine if the player is hovering over this item.
-		SpriteShader::Draw(item.InCargo() ? cargo : installed, pos + Point(-iconOffset / 2., 8.));
+		const Sprite *icon = item.InCargo() ? cargo : installed;
+		SpriteShader::Draw(icon, pos + Point(-icon->Width() / 2. + iconOffset, 8.));
 		if(plunderZone.Contains(hoverPoint))
 		{
 			// The tooltip counter is decremented on every frame for this class,
@@ -196,6 +195,9 @@ void BoardingPanel::Draw()
 				tooltip.SetText("This item is installed on the ship. Removal may leave the ship inoperable.");
 		}
 
+		// Color the item based on whether you have space for it.
+		const Color &color = item.CanTake(*you) ? isSelected ? bright : medium : dim;
+		pos += Point(iconOffset, 0.);
 		font.Draw(item.Name(), pos, color);
 		font.Draw({item.Value(), {tableWidth - sizeColWidth - iconOffset, Alignment::RIGHT}}, pos, color);
 		font.Draw({item.Size(), {tableWidth - iconOffset, Alignment::RIGHT}}, pos, color);
