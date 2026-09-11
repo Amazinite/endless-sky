@@ -193,7 +193,7 @@ void BoardingPanel::Draw()
 			if(item.InCargo())
 				tooltip.SetText("This item is in the ship's cargo hold.");
 			else
-				tooltip.SetText("This item installed on the ship. Removal may leave the ship inoperable.");
+				tooltip.SetText("This item is installed on the ship. Removal may leave the ship inoperable.");
 		}
 
 		font.Draw(item.Name(), pos, color);
