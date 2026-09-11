@@ -38,12 +38,14 @@ void FireCommand::SetHardpoints(size_t weaponCount, size_t decorCount)
 {
 	Clear();
 	weapon.Resize(weaponCount);
+	onTarget.Resize(weaponCount);
 	aim.resize(weaponCount);
 	aimDecor.resize(decorCount);
 
 	assert(aim.size() == weaponCount && "aim size must match the requested count");
 	assert(aimDecor.size() == decorCount && "aimDecor size must match the requested count");
 	assert(weapon.Size() >= aim.size() && "weapon bits must be at least as big as the aim bits");
+	assert(onTarget.Size() >= aim.size() && "onTarget bits must be at least as big as the aim bits");
 }
 
 
@@ -53,6 +55,7 @@ void FireCommand::SetHardpoints(size_t weaponCount, size_t decorCount)
 void FireCommand::UpdateWith(const FireCommand &other) noexcept
 {
 	weapon.UpdateWith(other.weapon);
+	onTarget.UpdateWith(other.onTarget);
 	SubsetAssign(aim, other.aim);
 	SubsetAssign(aimDecor, other.aimDecor);
 }
