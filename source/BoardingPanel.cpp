@@ -83,9 +83,6 @@ BoardingPanel::BoardingPanel(PlayerInfo &player, const shared_ptr<Ship> &victim)
 	AddPlunder(victim->Outfits(), false);
 	AddPlunder(victim->Cargo().Outfits(), true);
 
-	// The tooltip always displays the same text.
-	tooltip.SetText("This item is in the ship's cargo hold.");
-
 	const Interface *boarding = GameData::Interfaces().Get("boarding");
 	messageDisplay = make_shared<TextArea>();
 	messageDisplay->SetFont(FontSet::Get(Preferences::GetFontSize()));
@@ -150,6 +147,7 @@ void BoardingPanel::Draw()
 	const Color &medium = *GameData::Colors().Get("medium");
 	const Color &bright = *GameData::Colors().Get("bright");
 	const Sprite *cargo = SpriteSet::Get("ui/in cargo");
+	const Sprite *installed = SpriteSet::Get("ui/installed");
 	const Rectangle plunderTableFrame = boarding->GetBox("plunder table: frame");
 	FillShader::Fill(plunderTableFrame, opaque);
 
@@ -158,11 +156,15 @@ void BoardingPanel::Draw()
 	int y = plunderTableInner.Top() - scroll.AnimatedValue() + 20 * index;
 	int endY = 60;
 
+	int tableWidth = plunderTableInner.Width();
+	int sizeColWidth = boarding->GetValue("plunder table: size column: width");
+	int iconOffset = boarding->GetValue("plunder table: icon offset");
+
 	const Font &font = FontSet::Get(14);
 	// Y offset to center the text in a 20-pixel high row.
 	double fontOff = .5 * (20 - font.Height());
 	tooltip.DecrementCount();
-	bool drawTooltip = false;
+	tooltip.Clear();
 	for( ; y < endY && static_cast<unsigned>(index) < plunder.size(); y += 20, ++index)
 	{
 		const Plunder &item = plunder[index];
@@ -176,28 +178,27 @@ void BoardingPanel::Draw()
 
 		// Color the item based on whether you have space for it.
 		const Color &color = item.CanTake(*you) ? isSelected ? bright : medium : dim;
-		int cargoOffset = item.InCargo() ? 20. : 0.;
-		Point pos(plunderTableInner.Left() + cargoOffset, y + fontOff);
+		Point pos(plunderTableInner.Left() + iconOffset, y + fontOff);
 
-		if(item.InCargo())
+		// Draw the icon representing whether this item is in cargo or installed, and
+		// determine if the player is hovering over this item.
+		SpriteShader::Draw(item.InCargo() ? cargo : installed, pos + Point(-iconOffset / 2., 8.));
+		if(plunderZone.Contains(hoverPoint))
 		{
-			SpriteShader::Draw(cargo, pos + Point(-10., 8.));
-			if(plunderZone.Contains(hoverPoint))
-			{
-				// The tooltip counter is decremented on every frame for this class,
-				// so double-increment the counter when hovering on a zone.
-				tooltip.IncrementCount();
-				tooltip.IncrementCount();
-				tooltip.SetZone(plunderZone);
-				drawTooltip = true;
-			}
+			// The tooltip counter is decremented on every frame for this class,
+			// so double-increment the counter when hovering on a zone.
+			tooltip.IncrementCount();
+			tooltip.IncrementCount();
+			tooltip.SetZone(plunderZone);
+			if(item.InCargo())
+				tooltip.SetText("This item is in the ship's cargo hold.");
+			else
+				tooltip.SetText("This item installed on the ship. Removal may leave the ship inoperable.");
 		}
 
-		int tableWidth = plunderTableInner.Width();
-		int sizeColWidth = boarding->GetValue("plunder table: size column: width");
 		font.Draw(item.Name(), pos, color);
-		font.Draw({item.Value(), {tableWidth - sizeColWidth - cargoOffset, Alignment::RIGHT}}, pos, color);
-		font.Draw({item.Size(), {tableWidth - cargoOffset, Alignment::RIGHT}}, pos, color);
+		font.Draw({item.Value(), {tableWidth - sizeColWidth - iconOffset, Alignment::RIGHT}}, pos, color);
+		font.Draw({item.Size(), {tableWidth - iconOffset, Alignment::RIGHT}}, pos, color);
 	}
 
 	// Set which buttons are active.
@@ -257,8 +258,7 @@ void BoardingPanel::Draw()
 
 	boarding->Draw(info, this);
 	// Make sure the tooltip is drawn on top of the plunder list.
-	if(drawTooltip)
-		tooltip.Draw();
+	tooltip.Draw();
 
 	const Rectangle plunderListScrollbar = boarding->GetBox("plunder table: scrollbar");
 	if(scroll.Scrollable())
