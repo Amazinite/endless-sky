@@ -16,8 +16,8 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include "Angle.h"
-#include "Body.h"
 #include "Distribution.h"
+#include "Drawable.h"
 #include "Point.h"
 #include "Projectile.h"
 

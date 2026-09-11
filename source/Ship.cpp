@@ -1769,6 +1769,7 @@ void Ship::Place(Point position, Point velocity, Angle angle, bool isDeparting)
 	forget = 1;
 	targetShip.reset();
 	shipToAssist.reset();
+	ResetConfusion();
 	if(isDeparting)
 		lingerSteps = 0;
 
@@ -1913,6 +1914,25 @@ void Ship::SetPersonality(const Personality &other)
 
 
 
+const Confusion &Ship::GetConfusion() const
+{
+	return confusion;
+}
+
+
+
+void Ship::ResetConfusion()
+{
+	if(personality.GetConfusion())
+		confusion = *personality.GetConfusion();
+	else if(government && government->GetConfusion())
+		confusion = *government->GetConfusion();
+
+	confusion.RandomizePeriod();
+}
+
+
+
 const Phrase *Ship::GetHailPhrase() const
 {
 	return hail;
@@ -1999,9 +2019,10 @@ void Ship::SetCommands(const Command &command)
 
 
 
-void Ship::SetCommands(const FireCommand &firingCommand)
+void Ship::SetCommands(const FireCommand &firingCommand, const FireCommand &targeting)
 {
 	firingCommands.UpdateWith(firingCommand);
+	onTarget.UpdateWith(targeting);
 }
 
 
@@ -2050,7 +2071,8 @@ void Ship::Move(vector<Visual> &visuals, list<shared_ptr<Flotsam>> &flotsam)
 	StepDecorations(currentState);
 
 	// Adjust the error in the pilot's targeting.
-	personality.UpdateConfusion(firingCommands.IsFiring());
+	confusion.UpdateConfusion(onTarget.IsFiring());
+
 	DoStatusSparks(visuals);
 	DoJettison(flotsam);
 	DoCloakDecision();
@@ -3311,6 +3333,7 @@ int Ship::WasCaptured(const shared_ptr<Ship> &capturer)
 
 	// Set the new government.
 	government = capturer->GetGovernment();
+	ResetConfusion();
 
 	// Transfer some crew over. Only transfer the bare minimum unless even that
 	// is not possible, in which case, share evenly.
