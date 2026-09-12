@@ -139,7 +139,9 @@ private:
 	int selected = 0;
 	ScrollVar<double> scroll;
 	ScrollBar scrollBar;
-	Point hoverPoint;
+	// Initialize mouse point to something off-screen to not
+	// make the game think the player is hovering on something.
+	Point hoverPoint = Point(-10000., -10000.);
 	Tooltip tooltip;
 
 	bool playerDied = false;
