@@ -189,10 +189,7 @@ void BoardingPanel::Draw()
 			tooltip.IncrementCount();
 			tooltip.IncrementCount();
 			tooltip.SetZone(plunderZone);
-			if(item.InCargo())
-				tooltip.SetText("This item is in the ship's cargo hold.");
-			else
-				tooltip.SetText("This item is installed on the ship. Removal may leave the ship inoperable.");
+			tooltip.SetText(GameData::Tooltip(item.InCargo() ? "boarding: in cargo" : "boarding: installed"));
 		}
 
 		// Color the item based on whether you have space for it.
