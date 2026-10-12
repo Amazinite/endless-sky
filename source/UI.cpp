@@ -18,6 +18,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "audio/Audio.h"
 #include "Command.h"
 #include "Panel.h"
+#include "Preferences.h"
 #include "Screen.h"
 
 #include "SDL.h"
@@ -57,10 +58,21 @@ bool UI::Handle(const SDL_Event &event)
 		{
 			int x = Screen::Left() + event.button.x * 100 / Screen::Zoom();
 			int y = Screen::Top() + event.button.y * 100 / Screen::Zoom();
+
+			Point thisPoint = Point(x, y);
+			chrono::steady_clock::time_point thisClick = chrono::steady_clock::now();
+			chrono::milliseconds delta = chrono::duration_cast<chrono::milliseconds>(thisClick - lastClick);
+			if(delta < Preferences::MultiClickInterval() && thisPoint.DistanceSquared(lastPoint) < multiClickRadiusSquared)
+				++numClicks;
+			else
+				numClicks = 1;
+			lastPoint = thisPoint;
+			lastClick = thisClick;
+
 			if(event.button.button == SDL_BUTTON_LEFT)
 				handled = (*it)->ZoneClick(Point(x, y));
 			if(!handled)
-				handled = (*it)->DoClick(x, y, static_cast<MouseButton>(event.button.button), event.button.clicks);
+				handled = (*it)->DoClick(x, y, static_cast<MouseButton>(event.button.button), numClicks);
 		}
 		else if(event.type == SDL_MOUSEBUTTONUP)
 		{

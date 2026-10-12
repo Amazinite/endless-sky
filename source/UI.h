@@ -24,6 +24,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <SDL2/SDL_events.h>
 #endif
 
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -125,4 +126,16 @@ private:
 	// tasks to be completed, while the async queue does not.
 	TaskQueue syncQueue;
 	TaskQueue asyncQueue;
+
+	// Record when the most recent click occurred so that we can
+	// customize the timeframe between clicks to be considered a multi
+	// click.
+	std::chrono::steady_clock::time_point lastClick;
+	// Record where the most recent click occurred. We only consider two
+	// clicks to be a double click if they're within the multiClickRadius
+	// of one another.
+	Point lastPoint;
+	double multiClickRadiusSquared = 32. * 32.;
+	// The number of rapid clicks that will be sent to the Panel Click function.
+	int numClicks = 0;
 };

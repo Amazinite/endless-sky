@@ -41,6 +41,7 @@ namespace {
 	map<string, bool> settings;
 	int scrollSpeed = 60;
 	int tooltipActivation = 60;
+	chrono::milliseconds multiClickInterval = chrono::milliseconds(500);
 
 	// Strings for ammo expenditure:
 	const string EXPEND_AMMO = "Escorts expend ammo";
@@ -323,6 +324,8 @@ void Preferences::Load()
 			targetAsteroidIndex = clamp<int>(node.Value(1), 0, TARGET_ASTEROID_SETTINGS.size() - 1);
 		else if(key == "font size")
 			fontSizeIndex = max<int>(0, node.Value(1));
+		else if(key == "multi click interval")
+			multiClickInterval = chrono::milliseconds(static_cast<int>(node.Value(1)));
 #ifdef _WIN32
 		else if(key == "Title bar theme")
 			titleBarThemeIndex = clamp<int>(node.Value(1), 0, TITLE_BAR_THEME_SETTINGS.size() - 1);
@@ -434,6 +437,7 @@ void Preferences::Save()
 	out.Write("Target asteroid based on", targetAsteroidIndex);
 	out.Write("previous saves", previousSaveCount);
 	out.Write("font size", fontSizeIndex);
+	out.Write("multi click interval", multiClickInterval.count());
 #ifdef _WIN32
 	if(WinVersion::SupportsDarkTheme())
 		out.Write("Title bar theme", titleBarThemeIndex);
@@ -978,6 +982,13 @@ bool Preferences::DoAlertHelper(Preferences::AlertIndicator toDo)
 int Preferences::GetPreviousSaveCount()
 {
 	return previousSaveCount;
+}
+
+
+
+chrono::milliseconds Preferences::MultiClickInterval()
+{
+	return multiClickInterval;
 }
 
 

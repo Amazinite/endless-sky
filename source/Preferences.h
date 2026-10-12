@@ -15,6 +15,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -329,6 +330,8 @@ public:
 	static void ToggleBlockScreenSaver();
 
 	static int GetPreviousSaveCount();
+
+	static std::chrono::milliseconds MultiClickInterval();
 
 #ifdef _WIN32
 	static void ToggleTitleBarTheme();
