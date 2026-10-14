@@ -135,16 +135,30 @@ bool GameWindow::Init(bool headless)
 	if(!checkSDL(SDL_Init(SDL_INIT_VIDEO)))
 		return false;
 
-	// Get details about the current display.
+	// Locate which display the player's mouse is on and create the game window there.
+	// Assume that the mouse is on the first/primary monitor. Only check if
+	// it's on a different monitor if there are multiple displays.
 #ifdef ES_USE_SDL3
-	SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
-	if(primaryDisplay == 0)
+	SDL_DisplayID targetDisplay;
+	float mouseX, mouseY;
+	SDL_GetGlobalMouseState(&mouseX, &mouseY);
+	SDL_Point point = { static_cast<int>(mouseX), static_cast<int>(mouseY) };
+	SDL_DisplayID focusedDisplay = SDL_GetDisplayForPoint(&point);
+	if(focusedDisplay == 0)
 	{
 		checkSDLerror();
-		ExitWithError("Unable to query primary display!");
-		return false;
+		targetDisplay = SDL_GetPrimaryDisplay();
+		if(targetDisplay == 0)
+		{
+			checkSDLerror();
+			ExitWithError("Unable to query primary display!");
+			return false;
+		}
 	}
-	const SDL_DisplayMode *modePtr = SDL_GetCurrentDisplayMode(primaryDisplay);
+	else
+		targetDisplay = focusedDisplay;
+
+	const SDL_DisplayMode *modePtr = SDL_GetCurrentDisplayMode(targetDisplay);
 	if(!modePtr)
 	{
 		checkSDLerror();
@@ -153,9 +167,23 @@ bool GameWindow::Init(bool headless)
 	}
 	const SDL_DisplayMode &mode = *modePtr;
 #else
-	SDL_DisplayMode mode;
-	if(SDL_GetCurrentDisplayMode(0, &mode))
+	int targetDisplay;
+	int mouseX, mouseY;
+	SDL_GetGlobalMouseState(&mouseX, &mouseY);
+	SDL_Point point = { mouseX, mouseY };
+	int focusedDisplay = SDL_GetPointDisplayIndex(&point);
+	if(focusedDisplay < 0)
 	{
+		checkSDLerror();
+		targetDisplay = 0;
+	}
+	else
+		targetDisplay = focusedDisplay;
+
+	SDL_DisplayMode mode;
+	if(SDL_GetCurrentDisplayMode(targetDisplay, &mode))
+	{
+		checkSDLerror();
 		ExitWithError("Unable to query monitor resolution!");
 		return false;
 	}
@@ -197,10 +225,21 @@ bool GameWindow::Init(bool headless)
 
 	// The main window spawns visibly at this point.
 #ifdef ES_USE_SDL3
-	mainWindow = SDL_CreateWindow("Endless Sky", windowWidth, windowHeight, headless ? 0 : flags);
+	SDL_PropertiesID props = SDL_CreateProperties();
+	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, "Endless Sky");
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, windowWidth);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, windowHeight);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, SDL_WINDOWPOS_CENTERED_DISPLAY(targetDisplay));
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, SDL_WINDOWPOS_CENTERED_DISPLAY(targetDisplay));
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, headless ? 0 : flags);
+
+	mainWindow = SDL_CreateWindowWithProperties(props);
+	SDL_DestroyProperties(props);
 #else
-	mainWindow = SDL_CreateWindow("Endless Sky", SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, headless ? 0 : flags);
+	mainWindow = SDL_CreateWindow("Endless Sky",
+		SDL_WINDOWPOS_CENTERED_DISPLAY(targetDisplay),
+		SDL_WINDOWPOS_CENTERED_DISPLAY(targetDisplay),
+		windowWidth, windowHeight, headless ? 0 : flags);
 #endif
 
 	if(!mainWindow)
