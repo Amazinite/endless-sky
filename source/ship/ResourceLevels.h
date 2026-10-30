@@ -81,6 +81,8 @@ public:
 
 	ResourceLevels operator*(double scalar) const;
 	friend ResourceLevels operator*(double scalar, const ResourceLevels &levels);
+	ResourceLevels operator+(const ResourceLevels &other) const;
+	ResourceLevels &operator+=(const ResourceLevels &other);
 
 
 public:

@@ -57,6 +57,8 @@ public:
 	static const Command DEPLOY;
 	static const Command AFTERBURNER;
 	static const Command CLOAK;
+	static const Command ABILITY;
+	static const Command SELECT_ABILITY;
 	// UI controls:
 	static const Command MAP;
 	static const Command INFO;

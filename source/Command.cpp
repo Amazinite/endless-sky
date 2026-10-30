@@ -70,29 +70,31 @@ const Command Command::NEAREST_ASTEROID(ONE << 19, "Select nearest asteroid");
 const Command Command::DEPLOY(ONE << 20, "Deploy / recall fighters");
 const Command Command::AFTERBURNER(ONE << 21, "Fire afterburner");
 const Command Command::CLOAK(ONE << 22, "Toggle cloaking device");
-const Command Command::MAP(ONE << 23, "View star map");
-const Command Command::INFO(ONE << 24, "View player info");
-const Command Command::MESSAGE_LOG(ONE << 25, "View message log");
-const Command Command::FULLSCREEN(ONE << 26, "Toggle fullscreen");
-const Command Command::FASTFORWARD(ONE << 27, "Toggle fast-forward");
-const Command Command::HELP(ONE << 28, "Show help");
-const Command Command::PAUSE(ONE << 29, "Pause");
-const Command Command::PERFORMANCE_DISPLAY(ONE << 30, "Toggle performance info");
-const Command Command::FIGHT(ONE << 31, "Fleet: Fight my target");
-const Command Command::HOLD_FIRE(ONE << 32, "Fleet: Toggle hold fire");
-const Command Command::GATHER(ONE << 33, "Fleet: Gather around me");
-const Command Command::HOLD_POSITION(ONE << 34, "Fleet: Hold position");
-const Command Command::HARVEST(ONE << 35, "Fleet: Harvest flotsam");
-const Command Command::SCAN_ORDER(ONE << 36, "Fleet: Scan my target");
-const Command Command::AMMO(ONE << 37, "Fleet: Toggle ammo usage");
-const Command Command::AUTOSTEER(ONE << 38, "Auto steer");
+const Command Command::ABILITY(ONE << 23, "Activate ability");
+const Command Command::SELECT_ABILITY(ONE << 24, "Select ability");
+const Command Command::MAP(ONE << 25, "View star map");
+const Command Command::INFO(ONE << 26, "View player info");
+const Command Command::MESSAGE_LOG(ONE << 27, "View message log");
+const Command Command::FULLSCREEN(ONE << 28, "Toggle fullscreen");
+const Command Command::FASTFORWARD(ONE << 29, "Toggle fast-forward");
+const Command Command::HELP(ONE << 30, "Show help");
+const Command Command::PAUSE(ONE << 31, "Pause");
+const Command Command::PERFORMANCE_DISPLAY(ONE << 32, "Toggle performance info");
+const Command Command::FIGHT(ONE << 33, "Fleet: Fight my target");
+const Command Command::HOLD_FIRE(ONE << 34, "Fleet: Toggle hold fire");
+const Command Command::GATHER(ONE << 35, "Fleet: Gather around me");
+const Command Command::HOLD_POSITION(ONE << 36, "Fleet: Hold position");
+const Command Command::HARVEST(ONE << 37, "Fleet: Harvest flotsam");
+const Command Command::SCAN_ORDER(ONE << 38, "Fleet: Scan my target");
+const Command Command::AMMO(ONE << 39, "Fleet: Toggle ammo usage");
+const Command Command::AUTOSTEER(ONE << 40, "Auto steer");
 
 // These commands are not in the preferences panel, and do not have keys
 // assigned to them, but may have descriptions as needed to facilitate
 // assignments in downstream ports like endless-mobile.
-const Command Command::WAIT(ONE << 39, "");
-const Command Command::STOP(ONE << 40, "Stop your ship");
-const Command Command::SHIFT(ONE << 41, "");
+const Command Command::WAIT(ONE << 41, "");
+const Command Command::STOP(ONE << 42, "Stop your ship");
+const Command Command::SHIFT(ONE << 43, "");
 
 
 

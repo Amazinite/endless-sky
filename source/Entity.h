@@ -131,6 +131,7 @@ public:
 	// and DESTROYED.
 	// For minable entities, always returns 0, as minables don't have damage events.
 	int TakeDamage(std::vector<Visual> &visuals, const DamageDealt &damage, const Government *hitBy);
+	void SpendResources(const ResourceLevels &levels);
 
 
 protected:

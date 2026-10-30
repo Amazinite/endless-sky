@@ -45,6 +45,8 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+#include "ability/AbilityDisplay.h"
+
 class Flotsam;
 class Government;
 class NPC;
@@ -283,6 +285,7 @@ private:
 	int lastTargetType = 0;
 	EscortDisplay escorts;
 	AmmoDisplay ammoDisplay;
+	AbilityDisplay abilityDisplay;
 	std::vector<Outline> outlines;
 	std::vector<Status> statuses;
 	std::vector<PlanetLabel> labels;

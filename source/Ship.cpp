@@ -15,7 +15,10 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Ship.h"
 
+#include "ability/Ability.h"
+#include "ability/AbilityTracker.h"
 #include "audio/Audio.h"
+#include "ability/BlinkDrive.h"
 #include "CategoryList.h"
 #include "CategoryType.h"
 #include "DamageDealt.h"
@@ -4234,6 +4237,28 @@ void Ship::ExpendAmmo(const Weapon &weapon)
 	}
 
 	levels.Damage(firingCost);
+}
+
+
+
+const std::vector<AbilityTracker> &Ship::AbilityTrackers() const
+{
+	return abilityTrackers;
+}
+
+
+
+const BlinkDrive *Ship::ActiveBlinkDrive() const
+{
+	for(const AbilityTracker &tracker : abilityTrackers)
+	{
+		if(tracker.State() == Ability::State::ACTIVE && tracker.Type() == Ability::Type::BLINK_DRIVE)
+		{
+			const Ability *ability = tracker.Abilities().back();
+			return static_cast<const BlinkDrive *>(ability);
+		}
+	}
+	return nullptr;
 }
 
 

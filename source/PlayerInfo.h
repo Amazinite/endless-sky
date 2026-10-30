@@ -40,6 +40,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+class AbilityTracker;
 class DistanceMap;
 class Outfit;
 class PilotProfile;
@@ -352,6 +353,11 @@ public:
 	void SelectNextSecondary();
 	void DeselectAllSecondaries();
 	void ToggleAnySecondary(const Outfit *outfit);
+	// Toggle which abilities the player has selected.
+	const std::set<const AbilityTracker *> &SelectedAbilities() const;
+	void SelectNextAbility();
+	void DeselectAllAbilities();
+	void ToggleAnyAbility(const AbilityTracker *ability);
 
 	// Escorts currently selected for giving orders.
 	const std::vector<std::weak_ptr<Ship>> &SelectedEscorts() const;
@@ -574,6 +580,7 @@ private:
 	const Planet *travelDestination = nullptr;
 
 	std::set<const Outfit *> selectedWeapons;
+	std::set<const AbilityTracker *> selectedAbilities;
 
 	std::map<const Outfit *, int> stock;
 	Depreciation depreciation;

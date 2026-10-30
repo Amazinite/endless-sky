@@ -198,7 +198,7 @@ namespace {
 
 Engine::Engine(PlayerInfo &player)
 	: player(player), ai(player, ships, asteroids.Minables(), flotsam),
-	ammoDisplay(player), minimap(player), shipCollisions(256u, 32u, CollisionType::SHIP)
+	ammoDisplay(player), abilityDisplay(player), minimap(player), shipCollisions(256u, 32u, CollisionType::SHIP)
 {
 	zoom.base = Preferences::ViewZoom();
 	zoom.modifier = Preferences::Has("Landing zoom") ? 2. : 1.;
@@ -636,9 +636,15 @@ void Engine::Step(bool isActive)
 
 	// Update the player's ammo amounts.
 	if(flagship)
+	{
 		ammoDisplay.Update(*flagship);
+		abilityDisplay.Update(*flagship);
+	}
 	else
+	{
 		ammoDisplay.Reset();
+		abilityDisplay.Reset();
+	}
 
 	// Display escort information for all ships of the "Escort" government,
 	// and all ships with the "escort" personality, except for fighters that
@@ -1029,9 +1035,15 @@ void Engine::Step(bool isActive)
 	if(doClick && mouseButton == MouseButton::LEFT)
 	{
 		if(uiClickBox.Dimensions())
+		{
 			doClick = !ammoDisplay.Click(uiClickBox);
+			doClick = doClick && !abilityDisplay.Click(uiClickBox);
+		}
 		else
+		{
 			doClick = !ammoDisplay.Click(clickPoint, hasControl);
+			doClick = doClick && !abilityDisplay.Click(clickPoint, hasControl);
+		}
 		if(doClick && clickBox.Dimensions())
 			doClick = !player.SelectEscorts(clickBox, hasShift);
 		// If the click box has dimensions, then the click being handled now was the result of
@@ -1348,10 +1360,13 @@ void Engine::Draw() const
 	// Draw the systems mini-map.
 	minimap.Draw(uiStep);
 
-	// Draw ammo status.
+	// Draw ammo and ability status.
 	double ammoIconWidth = hud->GetValue("ammo icon width");
 	double ammoIconHeight = hud->GetValue("ammo icon height");
 	ammoDisplay.Draw(hud->GetBox("ammo"), Point(ammoIconWidth, ammoIconHeight));
+	double abilityIconWidth = hud->GetValue("ability icon width");
+	double abilityIconHeight = hud->GetValue("ability icon height");
+	abilityDisplay.Draw(hud->GetBox("ability"), Point(abilityIconWidth, abilityIconHeight));
 
 	// Draw escort status.
 	escorts.Draw(hud->GetBox("escorts"));

@@ -588,11 +588,12 @@ void PreferencesPanel::DrawControls()
 	// * The namespace variable CONTROLS_PAGE_COUNT should be updated to the max
 	//   page count (count of '\n' characters plus one).
 	static const string CATEGORIES[] = {
-		"Keyboard Navigation",
+		"Movement",
 		"Fleet",
 		"\t",
 		"Targeting",
 		"Weapons",
+		"Other",
 		"\n",
 		"Interface"
 	};
@@ -605,6 +606,7 @@ void PreferencesPanel::DrawControls()
 		Command::BACK,
 		Command::AFTERBURNER,
 		Command::AUTOSTEER,
+		Command::MOUSE_TURNING_HOLD,
 		Command::LAND,
 		Command::JUMP,
 		Command::NONE,
@@ -629,9 +631,11 @@ void PreferencesPanel::DrawControls()
 		Command::TURRET_TRACKING,
 		Command::SELECT,
 		Command::SECONDARY,
-		Command::CLOAK,
-		Command::MOUSE_TURNING_HOLD,
 		Command::AIM_TURRET_HOLD,
+		Command::NONE,
+		Command::CLOAK,
+		Command::SELECT_ABILITY,
+		Command::ABILITY,
 		Command::NONE,
 		Command::NONE,
 		Command::MENU,

@@ -97,14 +97,14 @@ void AmmoDisplay::Draw(const Rectangle &ammoBox, const Point &iconDim) const
 	auto textOff = Point(5. + ammoIconWidth - .5 * ammoIconHeight, .5 * (ammoIconHeight - font.Height()));
 	auto iconOff = Point(.5 * ammoIconHeight, .5 * ammoIconHeight);
 	const double iconCenterX = (ammoBox.Right() + ammoBox.Left()) / 2.;
+	const set<const Outfit *> &playerSelectedWeapons = player.SelectedSecondaryWeapons();
 	for(const auto &it : ammo)
 	{
 		pos.Y() -= ammoIconHeight;
 		if(pos.Y() < ammoBox.Top() + ammoPad)
 			break;
 
-		const auto &playerSelectedWeapons = player.SelectedSecondaryWeapons();
-		bool isSelected = (playerSelectedWeapons.find(it.first) != playerSelectedWeapons.end());
+		bool isSelected = playerSelectedWeapons.contains(it.first);
 
 		SpriteShader::Draw(it.first->GetWeapon()->Icon(), pos + iconOff);
 		SpriteShader::Draw(isSelected ? selectedSprite : unselectedSprite, pos + boxOff);

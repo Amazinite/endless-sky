@@ -517,6 +517,13 @@ int Entity::TakeDamage(std::vector<Visual> &visuals, const DamageDealt &damage, 
 
 
 
+void Entity::SpendResources(const ResourceLevels &levels)
+{
+	this->levels.Damage(levels);
+}
+
+
+
 void Entity::CacheAttributes()
 {
 	heatDissipation = attributes.Get("heat dissipation");

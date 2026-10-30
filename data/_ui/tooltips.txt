@@ -1423,6 +1423,13 @@ tip "Fire secondary weapon"
 tip "Toggle cloaking device"
 	`Activate or deactivate your fleet's cloaking devices, if any are installed.`
 
+tip "Select ability"
+	`Cycle to your flagship's next ability. After cycling through all abilities individually, selects every ability at once, then selects no abilities.`
+	`Abilities can also be selected by clicking on their icons in the HUD. Use Ctrl+Click to select multiple abilities.`
+
+tip "Activate ability"
+	`Fire your flagship's selected abilities.`
+
 tip "Turret aim override (hold)"
 	`Turrets aim towards your cursor when this key is held. If the "Aim turrets with mouse" setting is enabled, it will do the opposite.`
 

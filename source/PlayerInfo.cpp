@@ -15,6 +15,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PlayerInfo.h"
 
+#include "ability/AbilityTracker.h"
 #include "AI.h"
 #include "audio/Audio.h"
 #include "Conversation.h"
@@ -3371,6 +3372,77 @@ void PlayerInfo::ToggleAnySecondary(const Outfit *outfit)
 	const auto it = selectedWeapons.insert(outfit);
 	if(!it.second)
 		selectedWeapons.erase(it.first);
+}
+
+
+
+const std::set<const AbilityTracker *> &PlayerInfo::SelectedAbilities() const
+{
+	return selectedAbilities;
+}
+
+
+
+void PlayerInfo::SelectNextAbility()
+{
+	int numAvailable = flagship->AbilityTrackers().size();
+	if(!flagship || !numAvailable)
+		return;
+
+	// If multiple abilities were selected, or if one is selected and
+	// there's only one to choose from, then switch to selecting none.
+	int numSelected = selectedAbilities.size();
+	if(numSelected > 1 || (numSelected == 1 && numAvailable == 1))
+	{
+		selectedAbilities.clear();
+		return;
+	}
+
+	// If no ability was selected, then we scan from the beginning.
+	auto it = flagship->AbilityTrackers().begin();
+
+	// If a single ability was selected, then move the iterator to the
+	// ability directly after it.
+	if(numSelected == 1)
+	{
+		const AbilityTracker *selected = *(selectedAbilities.begin());
+		it = ranges::find_if(flagship->AbilityTrackers(), [&selected](const AbilityTracker &state) -> bool {
+			return &state == selected;
+		});
+		if(it != flagship->AbilityTrackers().end())
+			++it;
+	}
+
+	// Select the next ability.
+	if(it != flagship->AbilityTrackers().end())
+	{
+		selectedAbilities.clear();
+		selectedAbilities.insert(&*it);
+		return;
+	}
+
+	// Reached the end of the list. Select all possible abilities here.
+	for(const auto &ability : flagship->AbilityTrackers())
+		selectedAbilities.insert(&ability);
+}
+
+
+
+void PlayerInfo::DeselectAllAbilities()
+{
+	selectedAbilities.clear();
+}
+
+
+
+void PlayerInfo::ToggleAnyAbility(const AbilityTracker *ability)
+{
+	if(!flagship)
+		return;
+
+	const auto it = selectedAbilities.insert(ability);
+	if(!it.second)
+		selectedAbilities.erase(it.first);
 }
 
 

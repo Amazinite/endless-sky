@@ -44,6 +44,8 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+class BlinkDrive;
+class AbilityTracker;
 class ConditionsStore;
 class DamageDealt;
 class DataNode;
@@ -536,6 +538,11 @@ public:
 	// and add whatever heat it generates). Assume that CanFire() is true.
 	void ExpendAmmo(const Weapon &weapon);
 
+	// Get the list of abilities.
+	const std::vector<AbilityTracker> &AbilityTrackers() const;
+	// If a blink ability is active, return it.
+	const BlinkDrive *ActiveBlinkDrive() const;
+
 	// Each ship can have a target system (to travel to), a target planet (to
 	// land on) and a target ship (to move to, and attack if hostile).
 	std::shared_ptr<Ship> GetTargetShip() const;
@@ -803,6 +810,7 @@ private:
 	std::vector<EnginePoint> reverseEnginePoints;
 	std::vector<EnginePoint> steeringEnginePoints;
 	Armament armament;
+	std::vector<AbilityTracker> abilityTrackers;
 
 	// Delays for shield generation and hull repair.
 	int shieldDelay = 0;

@@ -383,6 +383,12 @@ target_sources(EndlessSkyLib PRIVATE
 	opengl.h
 	pi.h
 	shift.h
+	ability/Ability.cpp
+	ability/Ability.h
+	ability/AbilityDisplay.cpp
+	ability/AbilityDisplay.h
+        ability/AbilityTracker.cpp
+        ability/AbilityTracker.h
 	audio/Audio.cpp
 	audio/Audio.h
 	audio/Music.cpp

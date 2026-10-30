@@ -312,3 +312,48 @@ ResourceLevels operator*(double scalar, const ResourceLevels &levels)
 	retVal.slowness = levels.slowness * scalar;
 	return retVal;
 }
+
+
+
+ResourceLevels ResourceLevels::operator+(const ResourceLevels &other) const
+{
+	ResourceLevels retVal;
+	retVal.hull = hull + other.hull;
+	retVal.shields = shields + other.shields;
+	retVal.energy = energy + other.energy;
+	retVal.heat = heat + other.heat;
+	retVal.fuel = fuel + other.fuel;
+
+	retVal.corrosion = corrosion + other.corrosion;
+	retVal.discharge = discharge + other.discharge;
+	retVal.ionization = ionization + other.ionization;
+	retVal.burning = burning + other.burning;
+	retVal.leakage = leakage + other.leakage;
+
+	retVal.scrambling = scrambling + other.scrambling;
+	retVal.disruption = disruption + other.disruption;
+	retVal.slowness = slowness + other.slowness;
+	return retVal;
+}
+
+
+
+ResourceLevels &ResourceLevels::operator+=(const ResourceLevels &other)
+{
+	hull += other.hull;
+	shields += other.shields;
+	energy += other.energy;
+	heat += other.heat;
+	fuel += other.fuel;
+
+	corrosion += other.corrosion;
+	discharge += other.discharge;
+	ionization += other.ionization;
+	burning += other.burning;
+	leakage += other.leakage;
+
+	scrambling += other.scrambling;
+	disruption += other.disruption;
+	slowness += other.slowness;
+	return *this;
+}

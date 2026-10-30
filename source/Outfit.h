@@ -15,6 +15,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "ability/Ability.h"
 #include "Dictionary.h"
 #include "Drawable.h"
 #include "Paragraphs.h"
@@ -198,6 +199,8 @@ private:
 	// Linked outfits are also sold when this outfit is sold, but you
 	// won't be prompted to fill up on "ammo" when entering the outfitter.
 	std::set<const Outfit *> linkedOutfits;
+
+	std::vector<Ability> abilities;
 
 	// The integers in these pairs/maps indicate the number of
 	// sprites/effects/sounds to be placed/played.
