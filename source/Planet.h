@@ -75,7 +75,11 @@ public:
 	// Return the description text for the planet, but not the spaceport:
 	const Paragraphs &Description() const;
 	// Get the landscape sprite.
-	const Sprite *Landscape(bool refresh = false) const;
+	const Sprite *Landscape() const;
+	// Randomize this planet's landscape image, if possible.
+	void RandomizeLandscape() const;
+	// Whether this planet has multiple options for its landscape image.
+	bool HasRandomizedLandscapes() const;
 	// Get the name of the ambient audio to play on this planet.
 	const std::string &MusicName() const;
 

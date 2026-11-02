@@ -25,11 +25,13 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "pi.h"
 #include "Projectile.h"
 #include "Random.h"
+#include "image/SpriteSet.h"
 #include "Visual.h"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <ranges>
 #include <vector>
 
 using namespace std;
@@ -316,6 +318,31 @@ double Minable::Mass() const
 double Minable::MaxHeat() const
 {
 	return MAXIMUM_TEMPERATURE * (attributes.Mass() + attributes.Get("heat capacity"));
+}
+
+
+
+const std::set<const Sprite *> &Minable::WorldAssets() const
+{
+	if(assets.empty())
+	{
+		assets.insert(GetSprite());
+		assets.insert(GameData::Effects().Get("corrosion spark")->GetSprite());
+		assets.insert(GameData::Effects().Get("burning spark")->GetSprite());
+		for(const Payload &payload : payload)
+		{
+			if(payload.outfit->FlotsamSprite())
+				assets.insert(payload.outfit->FlotsamSprite());
+			else
+				assets.insert(SpriteSet::Get("effect/box"));
+		}
+		assets.insert(GameData::Effects().Get("flotsam death")->GetSprite());
+		for(const LiveEffect &effect : liveEffects)
+			assets.insert(effect.effect->GetSprite());
+		for(const Effect *effect : explosions | views::keys)
+			assets.insert(effect->GetSprite());
+	}
+	return assets;
 }
 
 

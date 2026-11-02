@@ -1566,10 +1566,18 @@ tip "Render motion blur"
 	`Toggle whether motion blur is rendered for all moving objects.`
 
 tip "Reduce large graphics"
-	`Reduce the size of very large (images with >= 1 million pixels) or all graphics to half their dimensions. UI sprites are excluded. (Not recommended for high-resolution displays, but may be used to free up memory. Requires game restart.)`
+	`Cut the resolution of certain sprites in half. UI sprites are excluded. Not recommended for high-resolution displays, but may be used to free up memory.`
+	`(Requires game restart when changed.)`
+	`- "largest only": only alter sprites with >= 1 million pixels.`
+	`- "all": alter all sprites.`
 
 tip "Defer loading images"
-	`Defer the loading of certain images so that they are loaded when they are needed instead of loading them when the game is first opened. This will result in a quicker launch time and lower VRAM usage, but you may experience pop-in as sprites are being loaded. Recommended for systems with low VRAM. (Requires game restart.)`
+	`Defer the loading of certain images so that they are loaded when needed instead of loading them when the game is first opened. Images will then be unloaded if you haven't encountered them for a while.`
+	`This will result in a quicker launch time and lower VRAM usage when the game is launched, but you may experience pop-in as sprites are being loaded. Recommended for systems with low VRAM.`
+	`(Requires game restart when changed.)`
+	`- "minimal": defer landscape images of planets and scenes displayed in conversations or logs.`
+	`- "moderate": defer planets, stars, and ship and outfit thumbnails.`
+	`- "aggressive": defer everything aside from the UI.`
 
 tip "Draw background haze"
 	`Draw the background haze when in flight.`
@@ -1611,7 +1619,8 @@ tip "Cloaked ship outlines"
 	`- "fast": simply shifts the ship to being red.`
 
 tip "Texture filtering"
-	`Choose the interpolation method used when sampling textures. (Requires game restart.)`
+	`Choose the interpolation method used when sampling textures.`
+	`(Requires game restart when changed.)`
 	`- "linear": produces a smoother, fuzzier image.`
 	`- "nearest": produces a sharper, blockier image`
 

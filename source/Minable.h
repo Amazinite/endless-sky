@@ -94,6 +94,8 @@ public:
 	double Mass() const override;
 	double MaxHeat() const override;
 
+	const std::set<const Sprite *> &WorldAssets() const;
+
 
 protected:
 	virtual int DoTakeDamage(const DamageDealt &damage, const Government *hitBy, bool wasDisabled,
@@ -153,4 +155,6 @@ private:
 	// The value of the highest quality drop from this minable.
 	int64_t highestQuality = 0.;
 	bool useRandomFrameRate = true;
+
+	mutable std::set<const Sprite *> assets;
 };

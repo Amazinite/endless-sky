@@ -66,5 +66,9 @@ private:
 	// Load a ship or outfit thumbnail. Stellar objects remain loaded for 100 in-game days.
 	static void LoadThumbnail(TaskQueue &queue, const Sprite *sprite, const std::shared_ptr<ImageSet> &image);
 	// Load a starting scenario, conversation, or logbook scene.
+	// These assets remain loaded for only a single in-game day.
 	static void LoadScene(TaskQueue &queue, const Sprite *sprite, const std::shared_ptr<ImageSet> &image);
+	// A catch-all for loading effects, projectiles, ships, and other related assets.
+	// These assets remain loaded for 100 in-game days.
+	static void LoadAsset(TaskQueue &queue, const Sprite *sprite, const std::shared_ptr<ImageSet> &image);
 };

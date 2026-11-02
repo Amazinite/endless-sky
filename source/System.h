@@ -189,6 +189,10 @@ public:
 
 	const std::vector<RaidFleet> &RaidFleets() const;
 
+	// Get the sprites referenced by this system so that they can be loaded
+	// if they aren't already.
+	std::set<const Sprite *> WorldAssets() const;
+
 
 private:
 	void LoadObject(const DataNode &node, Set<Planet> &planets,
@@ -287,4 +291,6 @@ private:
 
 	// Attributes, for use in location filters.
 	std::set<std::string> attributes;
+
+	mutable std::set<const Sprite *> assets;
 };

@@ -479,12 +479,24 @@ const Paragraphs &Planet::Description() const
 
 
 
-// Get the landscape sprite.
-const Sprite *Planet::Landscape(bool refresh) const
+const Sprite *Planet::Landscape() const
 {
-	if(refresh && landscapes.size() >= 2)
-		landscape = landscapes.Get();
 	return landscape;
+}
+
+
+
+void Planet::RandomizeLandscape() const
+{
+	if(landscapes.size() >= 2)
+		landscape = landscapes.Get();
+}
+
+
+
+bool Planet::HasRandomizedLandscapes() const
+{
+	return landscapes.size() >= 2;
 }
 
 

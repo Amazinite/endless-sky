@@ -167,6 +167,12 @@ public:
 		QUALITY
 	};
 
+	enum class DeferredImageLoading : int_fast8_t {
+		MINIMAL = 0,
+		MODERATE,
+		AGGRESSIVE
+	};
+
 #ifdef _WIN32
 	enum class TitleBarTheme : int_fast8_t {
 		DEFAULT,
@@ -321,6 +327,9 @@ public:
 	static void ToggleTargetAsteroidStrategy();
 	static TargetAsteroidStrategy GetTargetAsteroidStrategy();
 	static const std::string &TargetAsteroidStrategySetting();
+
+	/// Deferred image loading setting.
+	static DeferredImageLoading GetDeferredImageLoading();
 
 	/// Font size setting.
 	static void ToggleFontSize();

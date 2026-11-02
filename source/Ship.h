@@ -205,6 +205,10 @@ public:
 	// Save a full description of this ship, as currently configured.
 	void Save(DataWriter &out) const;
 
+	// Get the sprites referenced by this ship so that they can be loaded
+	// if they aren't already.
+	std::set<const Sprite *> WorldAssets() const;
+
 	const EsUuid &UUID() const noexcept;
 	// Explicitly set this ship's ID.
 	void SetUUID(const EsUuid &id);

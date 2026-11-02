@@ -225,9 +225,14 @@ public:
 
 	bool TriggersNukeAlert() const;
 
+	// Get the sprites referenced by this weapon so that they can be loaded
+	// if they aren't already.
+	const std::set<const Sprite *> &WorldAssets() const;
+
 
 private:
 	double TotalDamage(int index) const;
+	const std::set<const Sprite *> &ProjectileAssets() const;
 
 
 private:
@@ -372,6 +377,11 @@ private:
 	static const int RELATIVE_HEAT_DAMAGE = 21;
 	static const int RELATIVE_ENERGY_DAMAGE = 22;
 	mutable double damage[DAMAGE_TYPES] = {};
+
+	// All possible sprite assets that could be created by this weapon.
+	mutable std::set<const Sprite *> assets;
+	// Just the projectile assets for this weapon.
+	mutable std::set<const Sprite *> projectileAssets;
 
 	double piercing = 0.;
 

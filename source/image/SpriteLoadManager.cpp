@@ -49,11 +49,12 @@ namespace {
 	// Up to 20 landscape images will be preloaded at a time, with the oldest being culled to make room for new ones.
 	const int LANDSCAPE_LIMIT = 20;
 	map<const Sprite *, int> preloadedLandscapes;
-	// Stellar objects and thumbnails remain loaded for up to 100 in-game days before they're culled. This prevents
-	// us from repeatedly reloading sprites that the player is frequently encountering.
+	// Stellar objects, thumbnails, and other assets remain loaded for up to 100 in-game days before they're culled.
+	// This prevents us from repeatedly reloading sprites that the player is frequently encountering.
 	const int DAY_LIMIT = 100;
 	map<const Sprite *, int> loadedStellarObjects;
 	map<const Sprite *, int> loadedThumbnails;
+	map<const Sprite *, int> loadedAssets;
 	// Scenes remain loaded for only one in-game day before they're culled, as they are not commonly requested.
 	// Most scenes are only ever used in a single conversation, for example.
 	set<const Sprite *> loadedScenes;
@@ -173,11 +174,36 @@ void SpriteLoadManager::PreventSpriteUpload()
 
 void SpriteLoadManager::FindDeferredFolders()
 {
-	// Landscape images are always deferred.
-	if(Preferences::Has("Defer loading images"))
-		deferredFolders = {"land", "thumbnail", "outfit", "scene", "star", "planet"};
-	else
-		deferredFolders = {"land"};
+	Preferences::DeferredImageLoading defer = Preferences::GetDeferredImageLoading();
+	bool aggressive = defer == Preferences::DeferredImageLoading::AGGRESSIVE;
+	bool moderate = aggressive || defer == Preferences::DeferredImageLoading::MODERATE;
+
+	// If deferred image loading is at least minimal, then defer:
+	// - landscapes, as they consist of hundreds of 720x360 images.
+	// - scenes, as they are rarely used, and many are only used once for a single conversation.
+	deferredFolders.insert({"land", "scene"});
+
+	// If deferred image loading is set to at least moderate, then also defer:
+	// - outfit and ship thumbnails, as they are only seen while landed or in the map sales panels.
+	// - stars and planets, as some rarely seen stars and planets take up a considerable amount of VRAM.
+	if(moderate)
+		deferredFolders.insert({"thumbnail", "outfit", "star", "planet"});
+
+	// If deferred image loading is set to aggressive, then also defer:
+	// - weapon icons, hardpoints, and projectiles.
+	// - effects, which can be created by ships, weapons, or hazards.
+	// - ship sprites.
+	// - asteroids.
+	// All of these sprites may only be seen in certain areas of the game, so we can keep all alien content unloaded
+	// if a player is still only flying around in human space, as an example.
+	if(aggressive)
+		deferredFolders.insert({"icon", "hardpoint", "projectile", "effect", "ship", "asteroid"});
+
+	// The only sprites that we never defer are in _menu, font, label, map, and ui.
+	// These are all UI-related, and past tests to defer their loading didn't result in a good experience. Either
+	// we would have to add a pause whenever the player tries to open certain panels to load in the assets, or
+	// the assets would noticeably pop in upon opening the panel. Many of these images are constantly being used as
+	// well, so deferring their loading to later would only reduce the VRAM footprint once the game is freshly loaded.
 }
 
 
@@ -221,9 +247,11 @@ void SpriteLoadManager::LoadDeferred(TaskQueue &queue, const Drawable &drawable)
 
 void SpriteLoadManager::LoadDeferred(TaskQueue &queue, const Sprite *sprite)
 {
+	if(!sprite)
+		return;
 	// Make sure this sprite actually is one that uses deferred loading.
 	auto dit = deferred.find(sprite);
-	if(!sprite || dit == deferred.end())
+	if(dit == deferred.end())
 		return;
 
 	const string &name = sprite->Name();
@@ -236,6 +264,8 @@ void SpriteLoadManager::LoadDeferred(TaskQueue &queue, const Sprite *sprite)
 		LoadStellarObject(queue, sprite, image);
 	else if(name.starts_with("scene/"))
 		LoadScene(queue, sprite, image);
+	else
+		LoadAsset(queue, sprite, image);
 }
 
 
@@ -258,6 +288,7 @@ void SpriteLoadManager::CullOldImages(TaskQueue &queue)
 
 	Cull(loadedStellarObjects);
 	Cull(loadedThumbnails);
+	Cull(loadedAssets);
 
 	for(const Sprite *sprite : loadedScenes)
 		UnloadSprite(queue, sprite);
@@ -371,5 +402,19 @@ void SpriteLoadManager::LoadScene(TaskQueue &queue, const Sprite *sprite, const 
 	if(!loadedScenes.insert(sprite).second)
 		return;
 
+	LoadSprite(queue, image);
+}
+
+
+
+void SpriteLoadManager::LoadAsset(TaskQueue &queue, const Sprite *sprite, const shared_ptr<ImageSet> &image)
+{
+	map<const Sprite *, int>::iterator it = loadedAssets.find(sprite);
+	if(it != loadedAssets.end())
+	{
+		it->second = 0;
+		return;
+	}
+	loadedAssets[sprite] = 0;
 	LoadSprite(queue, image);
 }

@@ -206,15 +206,9 @@ Engine::Engine(PlayerInfo &player)
 	if(!player.IsLoaded() || !player.GetSystem())
 		return;
 
-	// Preload any landscapes and objects for this system.
-	for(const StellarObject &object : player.GetSystem()->Objects())
-	{
-		if(!object.HasSprite())
-			continue;
-		SpriteLoadManager::LoadDeferred(queue, object.GetSprite());
-		if(object.HasValidPlanet())
-			SpriteLoadManager::LoadDeferred(queue, object.GetPlanet()->Landscape());
-	}
+	// Preload any sprite assets for this system.
+	for(const Sprite *sprite : player.GetSystem()->WorldAssets())
+		SpriteLoadManager::LoadDeferred(queue, sprite);
 	queue.Wait();
 	queue.ProcessSyncTasks();
 
@@ -463,9 +457,8 @@ void Engine::Step(bool isActive)
 	// A recently triggered event may have caused new objects to appear in the current system.
 	// Ensure that they are loaded.
 	if(SpriteLoadManager::RecheckStellarObjects())
-		for(const StellarObject &object : player.GetSystem()->Objects())
-			if(object.HasSprite())
-				SpriteLoadManager::LoadDeferred(asyncQueue, object.GetSprite());
+		for(const Sprite *sprite : player.GetSystem()->WorldAssets())
+			SpriteLoadManager::LoadDeferred(queue, sprite);
 
 	// The calculation thread was paused by MainPanel before calling this function, so it is safe to access things.
 	const shared_ptr<Ship> flagship = player.FlagshipPtr();
@@ -1487,21 +1480,21 @@ void Engine::EnterSystem()
 		"." : ". No inhabited planets detected."),
 		GameData::MessageCategories().Get("daily")});
 
-	// Preload landscapes and determine if the player used a wormhole.
+	// Preload assets and determine if the player used a wormhole.
 	// (It is allowed for a wormhole's exit point to have no sprite.)
 	const StellarObject *usedWormhole = nullptr;
 	for(const StellarObject &object : system->Objects())
 	{
-		if(object.HasSprite())
-			SpriteLoadManager::LoadDeferred(asyncQueue, object.GetSprite());
 		if(object.HasValidPlanet())
 		{
-			SpriteLoadManager::LoadDeferred(asyncQueue, object.GetPlanet()->Landscape(true));
+			object.GetPlanet()->RandomizeLandscape();
 			if(object.GetPlanet()->IsWormhole() && !usedWormhole
 					&& flagship->Position().Distance(object.Position()) < 1.)
 				usedWormhole = &object;
 		}
 	}
+	for(const Sprite *sprite : system->WorldAssets())
+		SpriteLoadManager::LoadDeferred(queue, sprite);
 	// Cull images that haven't been seen in a while.
 	SpriteLoadManager::CullOldImages(asyncQueue);
 
@@ -1814,9 +1807,8 @@ void Engine::CalculateUnpaused(const Ship *flagship, const System *playerSystem)
 			for(const auto &sound : jumpSounds)
 				Audio::Play(sound.first, SoundCategory::JUMP);
 		// Begin loading the sprites in the next system.
-		for(const StellarObject &object : flagship->GetTargetSystem()->Objects())
-			if(object.HasSprite())
-				SpriteLoadManager::LoadDeferred(asyncQueue, object.GetSprite());
+		for(const Sprite *sprite : flagship->GetTargetSystem()->WorldAssets())
+			SpriteLoadManager::LoadDeferred(queue, sprite);
 	}
 	// Check if the flagship just entered a new system.
 	if(flagship && playerSystem != flagship->GetSystem())

@@ -23,6 +23,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "image/SpriteSet.h"
 
 #include <algorithm>
+#include <ranges>
 
 using namespace std;
 
@@ -646,4 +647,45 @@ pair<Distribution::Type, bool> Weapon::InaccuracyDistribution() const
 double Weapon::Inaccuracy() const
 {
 	return inaccuracy;
+}
+
+
+
+const set<const Sprite *> &Weapon::WorldAssets() const
+{
+	if(assets.empty())
+	{
+		assets.insert(hardpointSprite.GetSprite());
+		assets.insert(icon);
+		const set<const Sprite *> &projectileAssets = ProjectileAssets();
+		assets.insert(projectileAssets.begin(), projectileAssets.end());
+	}
+	return assets;
+}
+
+
+
+const set<const Sprite *> &Weapon::ProjectileAssets() const
+{
+	if(projectileAssets.empty())
+	{
+		if(projectileSprite.GetSprite())
+			projectileAssets.insert(projectileSprite.GetSprite());
+		for(const Effect *effect : fireEffects | views::keys)
+			projectileAssets.insert(effect->GetSprite());
+		for(const Effect *effect : liveEffects | views::keys)
+			projectileAssets.insert(effect->GetSprite());
+		for(const Effect *effect : hitEffects | views::keys)
+			projectileAssets.insert(effect->GetSprite());
+		for(const Effect *effect : targetEffects | views::keys)
+			projectileAssets.insert(effect->GetSprite());
+		for(const Effect *effect : dieEffects | views::keys)
+			projectileAssets.insert(effect->GetSprite());
+		for(const Submunition &submunition : submunitions)
+		{
+			set<const Sprite *> submunitionAssets = submunition.weapon->ProjectileAssets();
+			projectileAssets.insert(submunitionAssets.begin(), submunitionAssets.end());
+		}
+	}
+	return projectileAssets;
 }

@@ -536,6 +536,7 @@ void System::Load(const DataNode &node, Set<Planet> &planets, const ConditionsSt
 // if the system is inhabited.
 void System::UpdateSystem(const Set<System> &systems, const set<double> &neighborDistances)
 {
+	assets.clear();
 	accessibleLinks.clear();
 	neighbors.clear();
 
@@ -1183,6 +1184,52 @@ const vector<RaidFleet> &System::RaidFleets() const
 	static const vector<RaidFleet> EMPTY;
 	// If the system defines its own raid fleets then those are used in lieu of the government's fleets.
 	return noRaids ? EMPTY : ((raidFleets.empty() && government) ? government->RaidFleets() : raidFleets);
+}
+
+
+
+set<const Sprite *> System::WorldAssets() const
+{
+	if(assets.empty())
+	{
+		for(const StellarObject &object : objects)
+		{
+			if(!object.HasSprite())
+				continue;
+			assets.insert(object.GetSprite());
+			if(object.HasValidPlanet())
+			{
+				const Planet *planet = object.GetPlanet();
+				// Only keep landscapes in the cached assets if they aren't randomized.
+				if(!planet->HasRandomizedLandscapes())
+					assets.insert(planet->Landscape());
+				assets.insert(planet->GetPort().Landscape());
+			}
+		}
+		for(const RandomEvent<Hazard> &hazard : hazards)
+		{
+			const set<const Sprite *> &hazardAssets = hazard.Get()->WorldAssets();
+			assets.insert(hazardAssets.begin(), hazardAssets.end());
+		}
+		for(const Asteroid &asteroid : asteroids)
+		{
+			if(asteroid.Type())
+			{
+				const set<const Sprite *> &minableAssets = asteroid.Type()->WorldAssets();
+				assets.insert(minableAssets.begin(), minableAssets.end());
+			}
+			else
+				assets.insert(SpriteSet::Get("asteroid/" + asteroid.Name() + "/spin"));
+		}
+	}
+
+	// If any of the objects in this system have randomized landscape images,
+	// return the image that is currently in use.
+	set<const Sprite *> returnAssets = assets;
+	for(const StellarObject &object : objects)
+		if(object.HasSprite() && object.HasValidPlanet() && object.GetPlanet()->HasRandomizedLandscapes())
+			assets.insert(object.GetPlanet()->Landscape());
+	return returnAssets;
 }
 
 

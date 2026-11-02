@@ -44,6 +44,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "ShipEvent.h"
 #include "audio/Sound.h"
 #include "image/Sprite.h"
+#include "image/SpriteSet.h"
 #include "StellarObject.h"
 #include "Swizzle.h"
 #include "System.h"
@@ -55,6 +56,7 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cmath>
 #include <limits>
+#include <ranges>
 #include <sstream>
 
 using namespace std;
@@ -1508,6 +1510,76 @@ void Ship::Save(DataWriter &out) const
 			out.Write("parked");
 	}
 	out.EndChild();
+}
+
+
+
+set<const Sprite *> Ship::WorldAssets() const
+{
+	set<const Sprite *> assets;
+	// Hull assets:
+	if(GetSprite())
+		assets.insert(GetSprite());
+	for(const auto &leak : leaks)
+		assets.insert(leak.effect->GetSprite());
+	for(const auto &effect : liveEffects)
+		assets.insert(effect.effect->GetSprite());
+	for(const auto &spark : liveSparks)
+		assets.insert(spark.effect->GetSprite());
+	for(const auto &decor : decorations)
+		assets.insert(decor.sprite.GetSprite());
+	for(const auto &effect : explosionEffects | views::keys)
+		assets.insert(effect->GetSprite());
+	for(const auto &effect : finalExplosions | views::keys)
+		assets.insert(effect->GetSprite());
+	for(const auto &bay : bays)
+		for(const auto &effect : bay.launchEffects)
+			assets.insert(effect->GetSprite());
+
+	// Outfit assets:
+	for(const auto &flare : attributes.FlareSprites() | views::keys)
+		assets.insert(flare.GetSprite());
+	for(const auto &flare : attributes.ReverseFlareSprites() | views::keys)
+		assets.insert(flare.GetSprite());
+	for(const auto &flare : attributes.SteeringFlareSprites() | views::keys)
+		assets.insert(flare.GetSprite());
+	for(const auto &effect : attributes.AfterburnerEffects() | views::keys)
+		assets.insert(effect->GetSprite());
+	for(const auto &effect : attributes.JumpEffects() | views::keys)
+		assets.insert(effect->GetSprite());
+	for(const Outfit *outfit : outfits | views::keys)
+	{
+		if(outfit->FlotsamSprite())
+			assets.insert(outfit->FlotsamSprite());
+
+		// Weapon assets:
+		const shared_ptr<const Weapon> &weapon = outfit->GetWeapon();
+		if(weapon)
+		{
+			const set<const Sprite *> &weaponSprites = weapon->WorldAssets();
+			assets.insert(weaponSprites.begin(), weaponSprites.end());
+		}
+	}
+
+	// Effects that any ship is capable of generating:
+	assets.insert(GameData::Effects().Get("smoke")->GetSprite());
+	assets.insert(GameData::Effects().Get("flotsam death")->GetSprite());
+	assets.insert(GameData::Effects().Get("discharge spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("corrosion spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("ion spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("burning spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("leakage spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("disruption spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("slowing spark")->GetSprite());
+	assets.insert(GameData::Effects().Get("scramble spark")->GetSprite());
+
+	// Default effects that might be used if a custom effect isn't defined:
+	assets.insert(SpriteSet::Get("effect/box"));
+	if(!bays.empty())
+		assets.insert(GameData::Effects().Get("basic launch")->GetSprite());
+	if(navigation.HasJumpDrive())
+		assets.insert(GameData::Effects().Get("jump drive")->GetSprite());
+	return assets;
 }
 
 
