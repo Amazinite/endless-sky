@@ -148,6 +148,9 @@ protected:
 	std::map<const Effect *, double> deactivationSparks;
 
 	ResourceLevels cost;
+	// TODO: Outfit costs
+	// TODO: Random outfit cost
+	// TODO: Outfit generation
 	int cooldown = 0;
 	int activationDuration = 0;
 	int activeDuration = 0;
