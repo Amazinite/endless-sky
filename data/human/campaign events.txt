@@ -14,7 +14,43 @@
 event "remembrance day"
 	date 19 2 3014
 
-
+storyline "Main Campaign"
+	"section name" "Civil War"
+	heading "The Republic Civil War"
+	log
+		`This is an example of a storyline log entry. The storyline node defines the top-level section in the logbook.`
+	to start
+		has "event: war begins"
+	to complete
+		has "main plot completed"
+	book "Book 1"
+		log
+			`This is an example of a book entry. Each book appears as a separate sub-section of the storyline. Within each section, the storyline log will appear first, then the book entry, then all arc entries in order, with ordered chapter entries indented below those. Since entries are ordered in this manner, they can be received out of order but still display in a fixed order.`
+		arc "Arc 1"
+			log
+				`This is an example of an arc.`
+			to complete
+				random < 10
+			chapter "Chapter 1"
+				log
+					`This is an example of a chapter. Chapters get indented under their associated arc.`
+			chapter "Chapter 2"
+				log
+					`This is another chapter.`
+		arc "Arc 2"
+			log
+				`This is another arc.`
+			to complete
+				has "main plot completed" 
+			chapter "Chapter 1"
+				log
+					`Here's another chapter. It has the same name as a chapter in arc 1, as it is the full path to an entry that must be unique, instead of requiring a unique name across all entries.`
+			chapter "Chapter 2"
+				log
+					`Another one.`
+	book "Book 2"
+		log
+			`This one's here for show.`
 
 mission "remembrance day"
 	landing
@@ -156,6 +192,39 @@ mission "event: war begins"
 		has "event: war begins"
 	on offer
 		log "Factions" "Free Worlds" `The Free Worlds are a collection of local governments in the southern galactic arm who have declared independence from the Republic after Parliament refused to address issues they raised about trade tariffs, taxation, and representation. They may be linked to the recent terrorist attacks on the Navy Yard and the galactic stock exchange, although they deny responsibility.`
+		log "A collection of local governments in the southern galactic arm calling themselves the Free Worlds have declared independence from the Republic. The next morning, nuclear explosions on Geminus and Martini destroyed the Republic Navy Yard and the Galactic Stock Exchange. It has been less than a year since I bought my ship, and already the galaxy is falling apart on me."
+			mark
+				"Castor"
+				"Pollux"
+			circle
+				"Gamma Corvi"
+				"Spica"
+				"Minkar"
+				"Acrux"
+				"Mimosa"
+				"Kraz"
+				"Izar"
+				"Zeta Centauri"
+				"Hadar"
+				"Alkaid"
+				"Zubeneschamali"
+				"Kochab"
+				"Ildaria"
+				"Zubenelgenubi"
+				"Sabik"
+				"Unukalhai"
+				"Kornephoros"
+				"Sargas"
+				"Lesath"
+				"Aldhibain"
+				"Dschubba"
+				"Atria"
+				"Alniyat"
+				"Han"
+				"Pherkad"
+				"Yed Prior"
+				"Beta Lupi"
+				"Kappa Centauri"
 		conversation
 			branch geminus
 				has "flagship planet: Geminus"
