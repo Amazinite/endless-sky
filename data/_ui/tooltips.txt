@@ -1998,6 +1998,10 @@ tip "Minimum per casualty"
 tip "Capture value basis"
 	`Controls what percentage of the value of a captured ship is used to determine the size of a share. If unset, then a ship is valued at its sale price as it is captured.`
 
+tip "Fixed max speed"
+	`Sets a fixed forward maximum speed that ships are able to travel at under the force of their primary thrusters. Afterburners and drag reduction can still push a ship above this max speed. Max reverse speed becomes influenced by the ratio in strength between forward and reverse thrusters.`
+	`If unset, a ship's max speed is its thrust divided by its drag.`
+
 # Boarding panel:
 tip `boarding: in cargo`
 	`This item is in the ship's cargo hold.`

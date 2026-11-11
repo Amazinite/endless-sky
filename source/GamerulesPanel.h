@@ -18,7 +18,6 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "Panel.h"
 
 #include "ClickZone.h"
-#include "Point.h"
 #include "ScrollVar.h"
 #include "Tooltip.h"
 

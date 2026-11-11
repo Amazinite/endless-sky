@@ -20,14 +20,13 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 #include "DialogPanel.h"
 #include "text/Font.h"
 #include "text/FontSet.h"
-#include "text/Format.h"
 #include "GameData.h"
 #include "Gamerules.h"
 #include "Information.h"
 #include "Interface.h"
-#include "OptionalInputDialogPanel.h"
 #include "shader/PointerShader.h"
 #include "Preferences.h"
+#include "Point.h"
 #include "RenderBuffer.h"
 #include "image/Sprite.h"
 #include "image/SpriteSet.h"
@@ -388,6 +387,7 @@ void GamerulesPanel::DrawGamerules()
 		Gamerules::LOCK_GAMERULES,
 		Gamerules::FIGHTER_DODGE_POLICY,
 		Gamerules::UNIVERSAL_AMMO_RESTOCKING,
+		Gamerules::FIXED_MAX_SPEED,
 	};
 
 	bool isCategory = true;

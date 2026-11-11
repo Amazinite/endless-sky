@@ -3651,7 +3651,11 @@ int Ship::Crew() const
 // Calculate the drag on this ship. The drag can be no greater than the mass.
 double Ship::Drag() const
 {
-	double drag = cache.drag / cache.dragReduction;
+	double drag = cache.drag;
+	optional<double> fixedSpeed = GameData::GetGamerules().FixedMaxSpeed();
+	if(fixedSpeed.has_value())
+		drag = cache.thrust / fixedSpeed.value();
+	drag /= cache.dragReduction;
 	double mass = InertialMass();
 	return drag >= mass ? mass : drag;
 }
@@ -3687,9 +3691,7 @@ int Ship::FleetCost() const
 // divided by the mass, up to a value of 1.
 double Ship::DragForce() const
 {
-	double drag = cache.drag / cache.dragReduction;
-	double mass = InertialMass();
-	return drag >= mass ? 1. : drag / mass;
+	return Drag() / InertialMass();
 }
 
 

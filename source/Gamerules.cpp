@@ -69,6 +69,7 @@ const string Gamerules::CAPTURE_DEAD_CREW_SHARES = "capture dead crew shares";
 const string Gamerules::CAPTURE_SURVIVING_CREW_SHARES = "capture surviving crew shares";
 const string Gamerules::CAPTURE_MIN_DEATH_BENEFIT = "capture minimum death benefit";
 const string Gamerules::CAPTURE_VALUE_BASIS = "capture value basis";
+const string Gamerules::FIXED_MAX_SPEED = "fixed max speed";
 
 
 
@@ -825,6 +826,41 @@ Gamerules::Gamerules()
 		storage.captureValueBasis = preset.storage.captureValueBasis;
 		return std::nullopt;
 	});
+
+	settings[FIXED_MAX_SPEED] = Setting::Unique("Fixed max speed");
+	settings[FIXED_MAX_SPEED].SetDisplayFunc([this]() -> pair<string, bool> {
+		string text;
+		if(FixedMaxSpeed().has_value())
+			text = Format::AbbreviatedNumber(*FixedMaxSpeed() * 60., std::nullopt);
+		else
+			text = "(unset)";
+		return make_pair(text, true);
+	});
+	settings[FIXED_MAX_SPEED].SetOnToggleFunc([this](UI *ui) -> void {
+		if(!ui)
+			return;
+		string message = "Set the fixed max speed that will be used by all ships. "
+			"(Decimal value greater than or equal to 1.)";
+		auto validate = [](double value) -> bool { return value >= 1.; };
+		optional<double> initial = FixedMaxSpeed();
+		if(initial.has_value())
+			initial = *initial * 60.;
+		ui->Push(OptionalInputDialogPanel::RequestDoubleWithValidation(
+			[this](optional<double> value) -> void {
+				if(value.has_value())
+					storage.fixedMaxSpeed = *value / 60.;
+				else
+					storage.fixedMaxSpeed = value;
+			},
+			validate, message, initial));
+	});
+	settings[FIXED_MAX_SPEED].SetConditionFunc([this]() -> int {
+		return FixedMaxSpeed().value_or(0.) * 60 * 1000;
+	});
+	settings[FIXED_MAX_SPEED].SetResetRuleFunc([this](const Gamerules &preset) -> optional<int> {
+		storage.fixedMaxSpeed = preset.storage.fixedMaxSpeed;
+		return std::nullopt;
+	});
 }
 
 
@@ -1000,6 +1036,13 @@ void Gamerules::Load(const DataNode &node)
 			else
 				storage.captureValueBasis = max(0., child.Value(1));
 		}
+		else if(key == FIXED_MAX_SPEED)
+		{
+			if(child.Token(1) == "unset")
+				storage.fixedMaxSpeed.reset();
+			else
+				storage.fixedMaxSpeed = max(1. / 60., child.Value(1));
+		}
 		else
 			storage.miscRules[key] = child.IsNumber(1) ? child.Value(1) : child.BoolValue(1);
 	}
@@ -1144,6 +1187,13 @@ void Gamerules::Save(DataWriter &out, const Gamerules &preset) const
 				out.Write(CAPTURE_VALUE_BASIS, *storage.captureValueBasis);
 			else
 				out.Write(CAPTURE_VALUE_BASIS, "unset");
+		}
+		if(storage.fixedMaxSpeed != preset.storage.fixedMaxSpeed)
+		{
+			if(storage.fixedMaxSpeed.has_value())
+				out.Write(FIXED_MAX_SPEED, *storage.fixedMaxSpeed);
+			else
+				out.Write(FIXED_MAX_SPEED, "unset");
 		}
 
 		const map<string, int> &otherMiscRules = preset.storage.miscRules;
@@ -1540,9 +1590,16 @@ int Gamerules::CaptureMinimumDeathBenefit() const
 
 
 
-std::optional<double> Gamerules::CaptureValueBasis() const
+optional<double> Gamerules::CaptureValueBasis() const
 {
 	return storage.captureValueBasis;
+}
+
+
+
+optional<double> Gamerules::FixedMaxSpeed() const
+{
+	return storage.fixedMaxSpeed;
 }
 
 
