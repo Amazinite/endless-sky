@@ -1861,7 +1861,7 @@ mission "Strider: Remnant 2"
 	passengers 3
 	blocked "The Hai delegation to meet the Remnant requires 3 bunks for the trip, but you don't have enough available space! Return when you have room for the delegation."
 	"reminder name" `Remnants say "Hi"`
-	reminder "Fetch Her Excellence Ambassador Yashili and her two honorable companions from Allhome when you have enough spare bunks. No, you can't saw up a Human bunk to make two Hai bunks out of it."
+	reminder "Fetch Her Excellence Ambassador Yashili and her two honorable companions from Allhome when you have enough spare bunks. No, you can't saw up a human bunk to make two Hai bunks out of it."
 	to offer
 		has "Strider: Remnant 1: done"
 	on offer
