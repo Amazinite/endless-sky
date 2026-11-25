@@ -1893,7 +1893,7 @@ mission "Strider: Remnant 3"
 	cargo "repair technology" 12
 	blocked "You need <capacity> in order to return the Hai delegation and the repair technology back to <planet>."
 	"reminder name" "Pond Strider Development"
-	reminder "It's just a matter of time till Ambassador Yashili realizes that you embarrassingly forgot to reserve the obviously needed cargo space for 12 tons of repair tech. Hurry up to free some space and get the job done, if you don't want to make a fool of yourself in the eyes of such an important and probably financially sound client."
+	reminder "It's just a matter of time till Ambassador Yashili realizes that you embarrassingly forgot to reserve the obviously needed 3 bunks and cargo space for 12 tons of repair tech. Hurry up to free some space and get the job done, if you don't want to make a fool of yourself in the eyes of such an important and probably financially sound client."
 	to offer
 		has "Strider: Remnant 2: done"
 	on offer
@@ -1965,7 +1965,7 @@ mission "Strider: Coalition 2"
 	cargo "repair technology" 12
 	blocked "You need <capacity> in order to return the Hai delegation and the repair technology back to <planet>."
 	"reminder name" "Pond Strider Development"
-	reminder "It's just a matter of time till Ambassador Yashili realizes that you embarrassingly forgot to reserve the obviously needed cargo space for 12 tons of repair tech. Hurry up to free some space and get the job done, if you don't want to make a fool of yourself in the eyes of such an important and probably financially sound client."
+	reminder "It's just a matter of time till Ambassador Yashili realizes that you embarrassingly forgot to reserve the obviously needed 3 bunks and cargo space for 12 tons of repair tech. Hurry up to free some space and get the job done, if you don't want to make a fool of yourself in the eyes of such an important and probably financially sound client."
 	to offer
 		has "Strider: Coalition 1: done"
 	on offer
