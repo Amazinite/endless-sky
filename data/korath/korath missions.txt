@@ -333,7 +333,7 @@ mission "Efreti: Distress Call 2"
 	passengers 40
 	blocked `Looking towards the downed <EDC-ship>, you suddenly realize you forgot the <bunks> bunks you need for the evacuees.`
 	"reminder name" "Distress Call: Lost"
-	reminder `According to the Quarg, 40 of the friendly sort of Korath survived a crash on Seleptra Nak. You once watched "Lost", an ancient human docufictional series about a similar event happening on a remote place on Earth, and you feel the urge to keep the Korathi suffering as short as possible. So you hurry to vacate the necessary number of bunks as soon as possible.`
+	reminder `According to the Quarg, 40 of the friendly sort of Korath survived a crash on Seleptra Nak. You once watched "Lost", an ancient human docufictional series about a similar event happening on a remote place on Earth, and you feel the urge to keep the Korathi suffering as short as possible. So you hurry to vacate the necessary number of bunks.`
 	to offer
 		has "Efreti: Distress Call 1: done"
 	on offer
