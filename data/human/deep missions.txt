@@ -768,8 +768,8 @@ mission "Deep: TMBR 1"
 	source "Greenwater"
 	destination "Midgard"
 	blocked "You have reached <origin>, but you'll need <capacity> to continue this mission. Return here when you have the required space free."
-	reminder `Meet "There Might Be Riots" on <origin>. Have <capacity> free to transport the full band.`
 	"reminder name" "There Might Be Riots"
+	reminder `Meet "There Might Be Riots" on <origin>. Have <capacity> free to transport the full band.`
 	cargo "musical equipment" 4
 	passengers 8
 	to offer
@@ -1490,8 +1490,8 @@ mission "Deep: Remnant 2"
 	waypoint "Aescolanus"
 	cargo "astronomical recorders" 5
 	blocked `You've returned to <planet>, but Ivan informs you that you'll need <capacity> available for this next mission. Return when you have the available space.`
-	reminder "Return to <origin> with <capacity> to continue Ivan's research."
 	"reminder name" "Exploring the Unknown"
+	reminder "Return to <origin> with <capacity> to continue Ivan's research."
 	to offer
 		or
 			has "Deep: Remnant 1: done"
@@ -3399,8 +3399,8 @@ mission "Home for Skadenga 3"
 mission "Home for Skadenga 4"
 	name "Transport for Skadenga"
 	description "Travel to <destination> to secure transportation for the Skadenga."
-	reminder "Meet Hjold in the <origin> spaceport to discuss the next move for the Skadenga."
 	"reminder name" "Home for Skadenga"
+	reminder "Meet Hjold in the <origin> spaceport to discuss the next move for the Skadenga."
 	to offer
 		has "Home for Skadenga 2: done"
 		has "event: nifel waiting"
@@ -3624,8 +3624,8 @@ mission "Skadenga Call 2"
 	source "Asgard"
 	destination "Nifel"
 	blocked `You recall that Hjlod wanted you to have 52 bunks spare for the mission. Return when you have enough room.`
-	reminder "Return to <origin> with 52 bunks to fulfill Hjold's request."
 	"reminder name" "Home for Skadenga"
+	reminder "Return to <origin> with 52 bunks to fulfill Hjold's request."
 	passengers 48
 	to offer
 		has "Skadenga Call 1: done"
@@ -3761,8 +3761,8 @@ mission "Skadenga Call 5"
 mission "Home for Skadenga 8"
 	name "<planet> Mystery Man"
 	description "Travel to <destination>, and meet up with Hroar in the spaceport."
-	reminder "Meet with a mysterious contact in the <origin> spaceport after the Transport Union negotiations broke down."
 	"reminder name" "Home of Skadenga"
+	reminder "Meet with a mysterious contact in the <origin> spaceport after the Transport Union negotiations broke down."
 	to offer
 		not "Home for Skadenga 4: active"
 		has "Nifel"
@@ -3996,7 +3996,8 @@ event "skadenga life"
 
 
 mission "Home for Skadenga 13"
-	name "Home for Skadenga"
+	invisible
+	"reminder name" "Home for Skadenga"
 	reminder "Meet with the Skadenga Ondurdis in the <origin> spaceport."
 	source "Windblain"
 	to offer
