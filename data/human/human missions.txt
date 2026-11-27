@@ -2000,7 +2000,7 @@ mission "Terraforming 2"
 	destination "Rand"
 	passengers 3
 	blocked "You have reached <origin>, but you need <capacity> in order to take on the next mission. Return here when you have the required space free."
-	reminder "Return to <origin> with <capacity> to continue their terraforming team."
+	reminder "Return to <origin> with <capacity> to continue their terraforming work."
 	to offer
 		has "Terraforming 1: done"
 	
