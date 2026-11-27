@@ -3786,7 +3786,8 @@ mission "Home for Skadenga 8"
 
 
 mission "Home for Skadenga 9"
-	name "Home for Skadenga"
+	invisible
+	"reminder name" "Home for Skadenga"
 	reminder "Meet with Hroar in the <origin> spaceport to discuss travel arrangements for the Skadenga."
 	to offer
 		has "Home for Skadenga 8: done"
