@@ -5689,8 +5689,8 @@ mission "Wool Smuggling 2"
 	description "Deliver <cargo> to the pirate world of <destination>. Payment will be <payment>."
 	cargo "wool garments" 15
 	blocked "The spaceport workers inform you that you need <tons> of cargo free to pick up the woollen goods intended for <planet>."
-	reminder "Return to <origin> with <capacity> free to pick up the wool for Bloodsea."
 	"reminder name" "Wool Smuggling"
+	reminder "Return to <origin> with <capacity> free to pick up the wool for Bloodsea."
 	source "New Kansas"
 	destination "Bloodsea"
 	to offer
@@ -9539,7 +9539,8 @@ event "rad tim dead"
 mission "Timothy Radrickson 5a: Timshank Redemption"
 	name "Meet Tim's contact on <planet>"
 	description "Tim would like you to collect some supplies for him, but first he asked you to meet someone on <stopovers> who could help you out. Tim has 18 days (<date>) before he is reassigned to a camp down south."
-	cargo "Tim's equipment" 1
+	"reminder name" "Timothy Radrickson"
+	reminder "Meet with Tim in the <origin> spaceport tonight to hear what he needs."
 	deadline 18
 	source Oblivion
 	stopover Rand
@@ -11413,7 +11414,7 @@ mission "Ice Queen 7"
 mission "Ice Queen 8"
 	name "Defeat Ildico's rivals"
 	description "Ildico has requested you to destroy a fleet of Marauder ships near the <system> system. Once you're done, return to <planet>."
-	"reminder name" "See what Ildico needs on Haven"
+	"reminder name" "Meet Ildy on Haven"
 	reminder "Meet Ildico around the <origin> spaceport to see what she needs."
 	source "Haven"
 	to offer
