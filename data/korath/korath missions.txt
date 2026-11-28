@@ -332,7 +332,8 @@ mission "Efreti: Distress Call 2"
 	destination "Laki Nemparu"
 	passengers 40
 	blocked `Looking towards the downed <EDC-ship>, you suddenly realize you forgot the <bunks> bunks you need for the evacuees.`
-	reminder ""
+	"reminder name" "Distress Call: Lost"
+	reminder `According to the Quarg, 40 of the friendly sort of Korath survived a crash on Seleptra Nak. Feeling the urge to keep up the ancient space farer ethos to help those lost in space, you hurry to vacate the necessary number of bunks.`
 	to offer
 		has "Efreti: Distress Call 1: done"
 	on offer
@@ -365,8 +366,8 @@ mission "Efreti: Distress Call 3"
 	landing
 	name "Recover the fallen crew of the <EDC-ship>"
 	description "Recover the bodies of the dead <EDC-ship> crew on <destination> and return them to <origin>."
-	blocked ""
-	reminder ""
+	blocked "Distress Call: Grief"
+	reminder "Humans and Korath have more in common than at first glance. For instance, the wish to return the dead to bury and mourn them properly. Needing 13 tons of cargo space seems much, but firstly Korath are objectively heavier than humans, and secondly the coffins need extra confinement to avoid contamination. Though Seleptra Nak looks idyllic nowadays, there was a reason why it's now uninhabited. Better not taking a risk."
 	source "Laki Nemparu"
 	destination "Seleptra Nak"
 	cargo "efreti coffins" 13
@@ -464,11 +465,10 @@ mission "Efreti: Distress Call 5"
 	destination "Greenwater"
 	passengers 66
 	blocked `You need <bunks> available bunks to carry the salvage team.`
-	reminder ""
-	
+	"reminder name" "Distress Call: Salvage"
+	reminder "To salvage the crashed <EDC-ship> you need additional 66 hands. Organizing the necessary bunks needs some time, but you're convinced you'll find adequate personnel on Greenwater."
 	to offer
 		has "Efreti: Distress Call 4: done"
-	
 	on complete
 		conversation
 			`Many stories tell of Hai who like change and excitement, but their enthusiasm seems to have died. Thoughts of the species that invaded them still inspire fear. No Hai have the courage to salvage a ship that has been caught in the crossfire of the Mereti and Sestor war.`
