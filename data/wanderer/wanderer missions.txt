@@ -118,7 +118,7 @@ mission "Wanderers: Mereti: The Plant 5"
 	name "Plant to <planet>"
 	description "Escort the Wanderer ship, carrying the plant and a team of Wanderers ready to help it grow, to <destination>."
 	"reminder name" "Home for a Plant"
-	reminder "Va'ika and her team wait in spaceport of Vara Kehi'ki for your return. While you fetch some fertilizer on your way back, you wonder whether a plant can feel lonely."
+	reminder "Va'ika and her team wait in the spaceport of Vara Kehi'ki for your return. While you fetch some fertilizer on your way back, you wonder whether a plant can feel lonely."
 	source "Vara Kehi'ki"
 	destination "Sopi Lefarkata"
 	on visit
