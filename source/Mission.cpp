@@ -428,7 +428,8 @@ void Mission::Load(const DataNode &node, const ConditionsStore *playerConditions
 	hasTrackedNpcs = ranges::any_of(npcs, [](const NPC &npc) { return npc.GetPersonality().IsTracked(); });
 	if(!reminder.empty() && !HasReminder(false))
 		node.PrintTrace("Mission with reminder node does not meet the criteria to display a reminder. "
-			"A mission must be not be a job or offer in space and have a singular source planet.");
+			"The mission must have a singular source planet instead of using a source filter. This also means "
+			"that the mission can't be offered in space.");
 }
 
 
@@ -686,8 +687,7 @@ string Mission::Reminder(const PlayerInfo &player) const
 
 bool Mission::HasReminder(bool checkValidity) const
 {
-	return !reminder.empty() && source && location != Location::JOB && !LocationInFlight(location)
-		&& (!checkValidity || source->IsValid());
+	return !reminder.empty() && source && !LocationInFlight(location) && (!checkValidity || source->IsValid());
 }
 
 
